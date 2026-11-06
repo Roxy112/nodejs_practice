@@ -14,7 +14,7 @@
 ## 实体属性
 User: id(PK), name, account, password_hash, created_at, updated_at;
 Project:id(PK), user_id(FK), name, description, created_at, updated_at; 
-Task:id(PK), project_id(FK), name, deadline, priority, status, created_at, updated_at;
+Task:id(PK), project_id(FK), name, description, deadline, priority, status, created_at, updated_at;
 
 ## 业务规则
 # 用户

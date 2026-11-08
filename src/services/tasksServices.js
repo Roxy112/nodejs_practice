@@ -10,12 +10,12 @@ async function createTask(task, userId) {
     return result;
 }
 async function findTasksFromProject(projectId, userId) {
-    const result = await repository.findTasksByProjectIdAndUserId(projectId, userId);
+    const result = await repository.listOwnedByProject(projectId, userId);
     return result; 
 }
 
 async function findTaskDetail(id, user_id) {
-    const result = await repository.findTaskDetailById(id, user_id);
+    const result = await repository.findOwnedById(id, user_id);
     return result;
 }
 

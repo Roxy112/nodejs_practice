@@ -1,6 +1,6 @@
 const service = require("../services/projectsService");
 
-function checkIdValidity(id) {
+function isValidId(id) {
     if (!Number.isInteger(id) || id <= 0) return false;
     return true;
 }
@@ -9,7 +9,7 @@ async function createProject(req, res, next) {
     const name = req.query.name;
     const description = req.query.description ?? null;
     const userId = req.user.userId;
-    if (!name ||!checkIdValidity(userId)) {
+    if (!name || !isValidId(userId)) {
         return res.status(400).json({ error: "Bad Request" });
     }
     const project = {
@@ -33,14 +33,14 @@ async function createProject(req, res, next) {
     }
 }
 
-async function findProjectsFromUser(req, res, next) {
+async function listProjects(req, res, next) {
     const userId = req.user.userId;
-    if (!checkIdValidity(userId)) {
+    if (!isValidId(userId)) {
         return res.status(400).json({ error: "Bad Request" });
     }
 
     try {
-        const result = await service.findProjectsFromUser(userId);
+        const result = await service.listProjects(userId);
         return res.status(200).json({
             "success": true,
             "message": "OK",
@@ -53,15 +53,15 @@ async function findProjectsFromUser(req, res, next) {
     }
 }
 
-async function findProjectDetail(req, res, next) {
-    const id = req.body.id;
-    const userId = req.user.userId;
-    if (!checkIdValidity(id) || !checkIdValidity(userId)) {
+async function getProject(req, res, next) {
+    const id = Number(req.params.projectId);
+    const userId = Number(req.user.userId);
+    if (!isValidId(id) || !isValidId(userId)) {
         return res.status(400).json({ error: "Bad Request" });
     }
 
     try {
-        const result = await service.findProjectDetail(id, userId);
+        const result = await service.getProject(id, userId);
         return res.status(200).json({
             "success": true,
             "message": "OK",
@@ -75,17 +75,17 @@ async function findProjectDetail(req, res, next) {
 }
 
 async function updateProject(req, res, next) {
-    const { id, name, description = null} = req.body ?? {};
-    const userId = req.user.userId
-    if (!checkIdValidity(id) ||
-        !checkIdValidity(userId) || 
+    const { projectId, name, description = null} = req.body ?? {};
+    const userId = Number(req.user.userId);
+    if (!isValidId(projectId) ||
+        !isValidId(userId) || 
         !name
     ) {
         return res.status(400).json({ error: "Bad Request" });
     }
 
     const project = {
-        id,
+        id: projectId,
         name,
         description,
         userId
@@ -107,18 +107,20 @@ async function updateProject(req, res, next) {
 }
 
 async function deleteProject(req, res, next) {
-    const id = req.body.id;
-    const userId = req.user.userId;
-    const cascade = req.cascade ?? null;
-    if (!cascade) {
-        return res.status(409).json({ err: "Conflict" });
-    }
-    if (!checkIdValidity(id) || !checkIdValidity(userId)) {
+    const id = Number(req.params.projectId);
+    const userId = Number(req.user.userId);
+    if (!isValidId(id) || !isValidId(userId)) {
         return res.status(400).json({ error: "Bad Request" });
     }
 
+    const value = req.query.cascade;
+    if (value !== undefined && value !== "true" && value !== "false") {
+        return res.status(400).json({ error: "cascade must be true or false" });
+    }
+    const cascade = value === "true";
+
     try {
-        const result = await service.deleteProject(id, userId);
+        await service.deleteProject(id, userId, cascade);
         return res.status(204).json({
             "success": true,
             "message": "No Content",
@@ -130,8 +132,8 @@ async function deleteProject(req, res, next) {
 
 module.exports = {
     createProject, 
-    findProjectsFromUser,
-    findProjectDetail, 
+    listProjects,
+    getProject, 
     updateProject,
     deleteProject
 };

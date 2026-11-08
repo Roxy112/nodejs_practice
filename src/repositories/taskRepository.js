@@ -36,7 +36,7 @@ async function createTask(task, userId, conn = null) {
 }
 
 // 根据projectId和userId查找task
-async function findTasksByProjectIdAndUserId(projectId, userId, conn = null) {
+async function listOwnedByProject(projectId, userId, conn = null) {
     const executor = conn ?? db.pool;
     const [result] = await executor.execute(
         `SELECT 
@@ -55,7 +55,7 @@ async function findTasksByProjectIdAndUserId(projectId, userId, conn = null) {
 }
 
 // 根据taskId和userId查找task
-async function findTaskDetailById(id, userId, conn = null) {
+async function findOwnedById(id, userId, conn = null) {
     const executor = conn ?? db.pool;
     const [result] = await executor.execute(
         `SELECT 
@@ -139,11 +139,23 @@ async function LockTask(id, projectId, userId, conn = null) {
     return result[0] ?? null;
 }
 
+async function deleteAllByProject(projectId, userId, conn = null) {
+    const executor = conn ?? db.pool;
+    await executor.execute(
+        `DELETE FROM \`task\`
+        WHERE project_id = (
+        SELECT id FROM \`project\` WHERE id = ? AND user_id = ?
+        )`,
+        [projectId, userId]
+    );
+}
+
 module.exports = {
     createTask,
-    findTasksByProjectIdAndUserId,
-    findTaskDetailById,
+    listOwnedByProject,
+    findOwnedById,
     updateTask,
     deleteTask,
-    LockTask
+    LockTask,
+    deleteAllByProject
 };

@@ -19,7 +19,7 @@ async function createProject(project, conn = null) {
 }
 
 // 根据userID查找project
-async function findProjectsByUserId(userId, conn = null) {
+async function listByUser(userId, conn = null) {
     const executor = conn ?? db.pool;
     const [result] = await executor.execute(
         `SELECT 
@@ -35,7 +35,7 @@ async function findProjectsByUserId(userId, conn = null) {
 }
 
 // 根据projectId和userId查找project
-async function findProjectByIdAndUserId(id, userId, conn = null) {
+async function findOwnedById(id, userId, conn = null) {
     const executor = conn ?? db.pool;
     const [result] = await executor.execute(
         `SELECT 
@@ -94,7 +94,7 @@ async function deleteProject(id, userId, conn = null) {
     return true;
 }
 
-async function LockPtoject(id, userId, conn = null) {
+async function lockProject(id, userId, conn = null) {
     const executor = conn ?? db.pool;
     const [result] = await executor.execute(
         `SELECT id FROM \`project\` WHERE id = ? AND user_id = ? FOR UPDATE;`,
@@ -106,9 +106,9 @@ async function LockPtoject(id, userId, conn = null) {
 
 module.exports = {
     createProject,
-    findProjectsByUserId,
-    findProjectByIdAndUserId,
+    listByUser,
+    findOwnedById,
     updateProject,
     deleteProject,
-    LockPtoject
+    lockProject
 };

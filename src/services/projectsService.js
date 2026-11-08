@@ -22,28 +22,35 @@ async function updateProject(project) {
     return result;
 }
 
-async function cascadeDeleteProject(id, userId) {
-    // 获取待删除的task的id
-    const tasks = await taskRepository.findTasksByProjectIdAndUserId(id, userId);
-    let tasksId = [];
-    for (const task of tasks) {
-        tasksId.push(task.id);
-    }
-
+async function DeleteProject(id, userId, cascade = false) {
     const connection = await db.pool.getConnection();
     let transactionStarted = false;
     try {
         await connection.beginTransaction();
         transactionStarted = true;
 
-        for (const taskId of tasksId) {
-            await taskRepository.LockTask(taskId, id, userId, connection);
-            await taskRepository.deleteTask(taskId, id, userId, connection);
+        const project = await projectRepository.LockProject(id, userId, connection);
+        if (!project) {
+            const error = new Error("Project not found or unauthorized");
+            error.status = 404;
+            throw error;
+        }
+        
+        if (cascade === true) {
+            await taskRepository.deleteTasksByProjectId(id, userId, connection);
+        } else {
+            const tasks = await taskRepository.findTasksByProjectIdAndUserId(
+                id, userId, connection
+            );
+            if (tasks.length > 0) {
+                const error = new Error("Project contains tasks");
+                error.status = 409;
+                throw error;
+            }
         }
 
-        await projectRepository.LockPtoject(id, userId, connection);
         await projectRepository.deleteProject(id, userId, connection);
-
+        
         await connection.commit();
     } catch (error) {
         try {
@@ -64,5 +71,5 @@ module.exports = {
     findProjectsFromUser,
     findProjectDetail,
     updateProject,
-    cascadeDeleteProject
+    DeleteProject
 };

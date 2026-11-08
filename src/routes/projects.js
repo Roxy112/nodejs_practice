@@ -8,9 +8,9 @@ router.use(authMiddleware);
 
 router.post("/", controller.createProject);
 
-router.get("/", controller.findProjectsFromUser);
+router.get("/", controller.listProjects);
 
-router.get("/:projectId", controller.findProjectDetail);
+router.get("/:projectId", controller.getProject);
 
 router.patch("/:projectId", controller.updateProject);
 

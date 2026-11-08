@@ -1,9 +1,10 @@
 const db = require("../config/db");
 
 // 创建Task
-async function createTask(task, userId) {
+async function createTask(task, userId, conn = null) {
+    const executor = conn ?? db.pool;
     const { projectId, name, description = null, status, priority, deadline = null } = task;
-    const [result] = await db.pool.execute(
+    const [result] = await executor.execute(
         `INSERT \`task\` (
             \`project_id\`, 
             \`name\`, 
@@ -35,8 +36,9 @@ async function createTask(task, userId) {
 }
 
 // 根据projectId和userId查找task
-async function findTasksByProjectIdAndUserId(projectId, userId) {
-    const [result] = await db.pool.execute(
+async function findTasksByProjectIdAndUserId(projectId, userId, conn = null) {
+    const executor = conn ?? db.pool;
+    const [result] = await executor.execute(
         `SELECT 
             t.id, 
             t.name, 
@@ -53,8 +55,9 @@ async function findTasksByProjectIdAndUserId(projectId, userId) {
 }
 
 // 根据taskId和userId查找task
-async function findTaskDetailById(id, userId) {
-    const [result] = await db.pool.execute(
+async function findTaskDetailById(id, userId, conn = null) {
+    const executor = conn ?? db.pool;
+    const [result] = await executor.execute(
         `SELECT 
             t.id,
             t.project_id AS projectId,
@@ -75,14 +78,15 @@ async function findTaskDetailById(id, userId) {
 }
 
 // 修改task
-async function updateTask(task, userId) {
+async function updateTask(task, userId, conn = null) {
+    const executor = conn ?? db.pool;
     const { id, projectId, name, description = null, status, priority, deadline = null } = task;
     if (!id || !projectId || !name || !status || !priority) {
         const err = new Error("Missing required task fields");
         err.status = 400;
         throw err;
     }
-    const [result] = await db.pool.execute(
+    const [result] = await executor.execute(
         `UPDATE \`task\` t
          INNER JOIN \`project\` p ON t.project_id = p.id
          SET
@@ -105,8 +109,9 @@ async function updateTask(task, userId) {
 }
 
 // 删除task
-async function deleteTask(id, projectId, userId) {
-    const [result] = await db.pool.execute(
+async function deleteTask(id, projectId, userId, conn = null) {
+    const executor = conn ?? db.pool;
+    const [result] = await executor.execute(
         `DELETE FROM \`task\` 
          WHERE id = ? 
          AND project_id = (SELECT id FROM \`project\` WHERE id = ? AND user_id = ?)`,
@@ -122,10 +127,23 @@ async function deleteTask(id, projectId, userId) {
     return true;
 }
 
+async function LockTask(id, projectId, userId, conn = null) {
+    const executor = conn ?? db.pool;
+    const [result] = await executor.execute(
+        `SELECT t.id FROM \`task\` t 
+         INNER JOIN \`project\` p ON t.project_id = p.id 
+         WHERE t.id = ? AND p.user_id = ? FOR UPDATE;`,
+        [id, projectId, userId]
+    );
+
+    return result[0] ?? null;
+}
+
 module.exports = {
     createTask,
     findTasksByProjectIdAndUserId,
     findTaskDetailById,
     updateTask,
-    deleteTask
+    deleteTask,
+    LockTask
 };

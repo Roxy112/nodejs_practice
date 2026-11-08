@@ -1,8 +1,10 @@
+const db = require("../config/db");
+
 // 创建Project
-async function createProject(connection, project) {
+async function createProject(project) {
     const { userId, name, description = null } = project;
 
-    const [result] = await connection.execute(
+    const [result] = await db.pool.execute(
         `INSERT INTO \`project\` (user_id, name, description) VALUES (?, ?, ?);`,
         [userId, name, description]
     );
@@ -16,8 +18,8 @@ async function createProject(connection, project) {
 }
 
 // 根据userID查找project
-async function findProjectsByUserId(connection, userId) {
-    const [result] = await connection.execute(
+async function findProjectsByUserId(userId) {
+    const [result] = await db.pool.execute(
         `SELECT 
             id, 
             name, 
@@ -31,8 +33,8 @@ async function findProjectsByUserId(connection, userId) {
 }
 
 // 根据projectId和userId查找project
-async function findProjectByIdAndUserId(connection, id, userId) {
-    const [result] = await connection.execute(
+async function findProjectByIdAndUserId(id, userId) {
+    const [result] = await db.pool.execute(
         `SELECT 
             id, 
             name, 
@@ -46,13 +48,21 @@ async function findProjectByIdAndUserId(connection, id, userId) {
 }
 
 // 修改项目信息
-async function updateProject(connection, project) {
+async function updateProject(project) {
     const { id, userId, name, description = null } = project;
 
-    const [result] = await connection.execute(
-        `UPDATE \`project\` SET name = ?, description = ? WHERE id = ? AND user_id = ?;`,
-        [name, description, id, userId]
-    );
+    let result;
+    if (description = null) {
+        [result] = await db.pool.execute(
+            `UPDATE \`project\` SET name = ?, description = ? WHERE id = ? AND user_id = ?;`,
+            [name, description, id, userId]
+        );
+    } else {
+        [result] = await db.pool.execute(
+            `UPDATE \`project\` SET name = ? WHERE id = ? AND user_id = ?;`,
+            [name, id, userId]
+        );
+    }
 
     if (result.affectedRows === 0) {
         const err = new Error("Project not found or unauthorized");
@@ -64,8 +74,8 @@ async function updateProject(connection, project) {
 }
 
 // 删除项目
-async function deleteProject(connection, id, userId) {
-    const [result] = await connection.execute(
+async function deleteProject(id, userId) {
+    const [result] = await db.pool.execute(
         `DELETE FROM \`project\` WHERE id = ? AND user_id = ?;`,
         [id, userId]
     );

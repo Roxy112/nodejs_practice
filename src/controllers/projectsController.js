@@ -1,4 +1,3 @@
-const { deleteProject } = require("../repositories/projectsRepository");
 const service = require("../services/projectsService");
 
 function checkIdValidity(id) {
@@ -23,7 +22,7 @@ async function createProject(req, res, next) {
         const result = await service.createProject(project);
         return res.status(201).json({
             "success": true,
-            "message": "Create completed",
+            "message": "Created",
             "data": {
                 "id": result.id,
                 "name": result.name
@@ -42,9 +41,9 @@ async function findProjectsFromUser(req, res, next) {
 
     try {
         const result = await service.findProjectsFromUser(userId);
-        return res.status(201).json({
+        return res.status(200).json({
             "success": true,
-            "message": "Find out",
+            "message": "OK",
             "data": {
                 "project": result 
             }
@@ -63,9 +62,9 @@ async function findProjectDetail(req, res, next) {
 
     try {
         const result = await service.findProjectDetail(id, userId);
-        return res.status(201).json({
+        return res.status(200).json({
             "success": true,
-            "message": "Find out",
+            "message": "OK",
             "data": {
                 "project": result 
             }
@@ -94,9 +93,9 @@ async function updateProject(req, res, next) {
 
     try {
         const result = await service.updateProject(project);
-        return res.status(201).json({
+        return res.status(200).json({
             "success": true,
-            "message": "Delete completed",
+            "message": "OK",
             "data": {
                 "project": result 
             }
@@ -110,15 +109,19 @@ async function updateProject(req, res, next) {
 async function deleteProject(req, res, next) {
     const id = req.body.id;
     const userId = req.user.userId;
+    const cascade = req.cascade ?? null;
+    if (!cascade) {
+        return res.status(409).json({ err: "Conflict" });
+    }
     if (!checkIdValidity(id) || !checkIdValidity(userId)) {
         return res.status(400).json({ error: "Bad Request" });
     }
 
     try {
         const result = await service.deleteProject(id, userId);
-        return res.status(201).json({
+        return res.status(204).json({
             "success": true,
-            "message": "Delete completed",
+            "message": "No Content",
         });
     } catch (error) {
         next(error);

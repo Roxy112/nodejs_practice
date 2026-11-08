@@ -7,13 +7,13 @@ async function createProject(project) {
     return result;
 }
 
-async function findProjectsFromUser(userId) {
-    const result = await projectRepository.findProjectsByUserId(userId);
+async function listProjects(userId) {
+    const result = await projectRepository.listByUser(userId);
     return result;
 }
 
-async function findProjectDetail(id, userId) {
-    const result = await projectRepository.findProjectByIdAndUserId(id, userId);
+async function getProject(id, userId) {
+    const result = await projectRepository.findOwnedById(id, userId);
     return result;
 }
 
@@ -22,14 +22,14 @@ async function updateProject(project) {
     return result;
 }
 
-async function DeleteProject(id, userId, cascade = false) {
+async function deleteProject(id, userId, cascade = false) {
     const connection = await db.pool.getConnection();
     let transactionStarted = false;
     try {
         await connection.beginTransaction();
         transactionStarted = true;
 
-        const project = await projectRepository.LockProject(id, userId, connection);
+        const project = await projectRepository.lockProject(id, userId, connection);
         if (!project) {
             const error = new Error("Project not found or unauthorized");
             error.status = 404;
@@ -37,9 +37,9 @@ async function DeleteProject(id, userId, cascade = false) {
         }
         
         if (cascade === true) {
-            await taskRepository.deleteTasksByProjectId(id, userId, connection);
+            await taskRepository.deleteAllByProject(id, userId, connection);
         } else {
-            const tasks = await taskRepository.findTasksByProjectIdAndUserId(
+            const tasks = await taskRepository.listOwnedByProject(
                 id, userId, connection
             );
             if (tasks.length > 0) {
@@ -68,8 +68,8 @@ async function DeleteProject(id, userId, cascade = false) {
 
 module.exports = {
     createProject,
-    findProjectsFromUser,
-    findProjectDetail,
+    listProjects,
+    getProject,
     updateProject,
-    DeleteProject
+    deleteProject
 };

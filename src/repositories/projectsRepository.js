@@ -56,7 +56,7 @@ async function updateProject(project, conn = null) {
     const { id, userId, name, description = null } = project;
 
     let result;
-    if (description === null) {
+    if (description !== null) {
         [result] = await executor.execute(
             `UPDATE \`project\` SET name = ?, description = ? WHERE id = ? AND user_id = ?;`,
             [name, description, id, userId]

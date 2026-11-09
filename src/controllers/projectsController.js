@@ -6,8 +6,7 @@ function isValidId(id) {
 }
 
 async function createProject(req, res, next) {
-    const name = req.query.name;
-    const description = req.query.description ?? null;
+    const { name, description = null} = req.body;
     const userId = req.user.userId;
     if (!name || !isValidId(userId)) {
         return res.status(400).json({ error: "Bad Request" });
@@ -62,6 +61,9 @@ async function getProject(req, res, next) {
 
     try {
         const result = await service.getProject(id, userId);
+        if (result === null) {
+            return res.status(404).json({ error: "Not Found or unauthorized" });
+        }
         return res.status(200).json({
             "success": true,
             "message": "OK",
@@ -75,7 +77,8 @@ async function getProject(req, res, next) {
 }
 
 async function updateProject(req, res, next) {
-    const { projectId, name, description = null} = req.body ?? {};
+    const projectId = Number( req.params.id );
+    const { name, description = null } = req.body ?? {};
     const userId = Number(req.user.userId);
     if (!isValidId(projectId) ||
         !isValidId(userId) || 
@@ -121,10 +124,7 @@ async function deleteProject(req, res, next) {
 
     try {
         await service.deleteProject(id, userId, cascade);
-        return res.status(204).json({
-            "success": true,
-            "message": "No Content",
-        });
+        return res.status(204);
     } catch (error) {
         next(error);
     }

@@ -1,9 +1,14 @@
+require('dotenv').config();
+const { testConnection } = require("./config/db");
+
 const express = require('express');
 const jwt = require("jsonwebtoken");
 
 // const authRouter = require("./routes/auth");
 const projectsRouter = require("./routes/projects");
 // const tasksRouter = require("./routes/tasks");
+
+const { authMiddleware } = require("./middlewares/authMiddleware");
 
 const app = express();
 
@@ -44,28 +49,7 @@ app.post('/api/login', (req, res) => {
     });
 });
 
-// 验证中间件：拦截需要认证的路由
-function authenticateToken(req, res, next) {
-    // 从 Authorization 请求头获取格式为 "Bearer <token>" 的字符串
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (!token) {
-        return res.status(401).json({ message: '缺少访问令牌' });
-    }
-
-    // 校验 Token
-    jwt.verify(token, JWT_SECRET, (err, decodedUser) => {
-        if (err) {
-        // Token 过期或被篡改
-        return res.status(403).json({ message: '令牌无效或已过期' });
-        }
-
-        // 验证通过，将解码出的用户信息绑定到 req 上，方便后续接口使用
-        req.user = decodedUser;
-        next();
-    });
-}
+app.use(authMiddleware);
 
 // 受保护的接口：需要携带有效 Token
 app.get('/api/profile', authenticateToken, (req, res) => {
@@ -76,10 +60,10 @@ app.get('/api/profile', authenticateToken, (req, res) => {
     });
 });
 
-// app.use("/auth", authRouter);  TODO
-// app.use("/users", authRouter);  TODO
-app.use("/projects", projectsRouter);
-// app.use("/tasks", tasksRouter);  TODO
+// app.use("/api/v1/auth", authRouter);  TODO
+// app.use("/api/v1/users", authRouter);  TODO
+app.use("/api/v1/projects", projectsRouter);
+// app.use("/api/v1/tasks", tasksRouter);  TODO
 
 app.use((req, res) => {
     res.status(404).json({ error: "Not Found" });
@@ -93,4 +77,17 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.listen(3000, () => console.log('Server running on port 3000'));
+async function start() {
+    try {
+        await testConnection();
+        const port = Number(process.env.PORT) || 3000;
+        app.listen(port, () => {
+            console.log(`Server running at http://localhost:${port}`);
+        });
+    } catch (err) {
+        console.error("Database Connect Failed", err);
+        process.exit(1);
+    }
+}
+
+start();

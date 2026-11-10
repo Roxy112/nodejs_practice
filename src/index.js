@@ -51,14 +51,6 @@ app.post('/api/login', (req, res) => {
 
 app.use(authMiddleware);
 
-// 受保护的接口：需要携带有效 Token
-app.get('/api/profile', authenticateToken, (req, res) => {
-    // 直接从 req.user 读取在中间件中解析出的信息
-    res.json({
-        message: '获取成功',
-        currentUser: req.user
-    });
-});
 
 // app.use("/api/v1/auth", authRouter);  TODO
 // app.use("/api/v1/users", authRouter);  TODO

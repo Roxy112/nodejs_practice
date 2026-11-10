@@ -7,12 +7,12 @@ const SALT_ROUNDS = 12;
 // 注册：哈希密码后交给 repository 存储
 async function register(user) {
     const passwordHash = await bcrypt.hash(user.plainPassword, SALT_ROUNDS);
-    const user = await repository.createUser({
+    const result = await repository.createUser({
         "name": user.name,
         "account": user.account,
-        "password": user.passwordHash,
+        "password": passwordHash,
     });
-    return user;
+    return result;
 }
 
 // 登录：取出哈希，比对密码
@@ -38,4 +38,10 @@ async function getUserInformation(account) {
     }
 
     return user;
+}
+
+module.exports = {
+    register,
+    login,
+    getUserInformation
 }

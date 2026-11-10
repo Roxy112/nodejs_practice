@@ -127,12 +127,13 @@ async function deleteTask(id, projectId, userId, conn = null) {
     return true;
 }
 
-async function LockTask(id, projectId, userId, conn = null) {
+async function lockTask(id, projectId, userId, conn = null) {
     const executor = conn ?? db.pool;
     const [result] = await executor.execute(
-        `SELECT t.id FROM \`task\` t 
-         INNER JOIN \`project\` p ON t.project_id = p.id 
-         WHERE t.id = ? AND p.user_id = ? FOR UPDATE;`,
+        `SELECT id FROM \`task\` 
+         WHERE id = ? 
+            AND project_id = (SELECT id FROM \`project\` WHERE id = ? AND user_id = ?)
+         FOR UPDATE;`,
         [id, projectId, userId]
     );
 
@@ -156,6 +157,6 @@ module.exports = {
     findOwnedById,
     updateTask,
     deleteTask,
-    LockTask,
+    lockTask,
     deleteAllByProject
 };

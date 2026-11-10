@@ -53,21 +53,22 @@ async function findOwnedById(id, userId, conn = null) {
 // 修改项目信息
 async function updateProject(id, userId, project, conn = null) {
     const executor = conn ?? db.pool;
-    const ALLOWED_COLUMNS = new setImmediate(["name", "description"]);
-    const cleanData = sanitizeUpdateData(project);
-    const keys = Object.keys(cleanData).filter(key => ALLOWED_COLUMNS.has(key));
+    const ALLOWED_COLUMNS = new Set(["name", "description"]);
+    const keys = Object.keys(project || {}).filter(
+        key => ALLOWED_COLUMNS.has(key) && project[key] !== undefined
+    );
 
     if (keys.length === 0) {
         return false;
     }
 
-    const setClauses = keys.map((key, index) => `"${key}" = $${index + 3}`).join(', ');
+    const setClauses = keys.map((key, index) => `\`${key}\` = ?`).join(', ');
 
-    const values = [id, userId, ...keys.map(key => cleanData[key])];
+    const values = [...keys.map(key => project[key]), id, userId];
     const query = `
         UPDATE \`project\` 
-        SET ${setClauses}, 
-        WHERE id = $1 AND user_id = $2;`;
+        SET ${setClauses}
+        WHERE id = ? AND user_id = ?;`;
 
     const [result] = await executor.execute(query, values);
 

@@ -17,8 +17,8 @@ async function getProject(id, userId) {
     return result;
 }
 
-async function updateProject(project) {
-    const result = await projectRepository.updateProject(project);
+async function updateProject(id, userId, project) {
+    const result = await projectRepository.updateProject(id, userId, project);
     return result;
 }
 

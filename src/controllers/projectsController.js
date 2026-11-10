@@ -105,26 +105,24 @@ async function getProject(req, res, next) {
 }
 
 async function updateProject(req, res, next) {
-    const projectId = Number( req.params.id );
+    const projectId = Number( req.params.projectId );
     const { name, description = null } = req.body ?? {};
     const userId = Number(req.user.userId);
     if (!isValidId(projectId) ||
         !isValidId(userId) || 
-        !validString(name, { max: 20 }).ok ||
+        !validString(name, { require: false, max: 20 }).ok ||
         !validString(description, { require: false, max: 50 }).ok
     ) {
         return res.status(400).json({ error: "Bad Request" });
     }
 
     const project = {
-        id: projectId,
         name,
         description,
-        userId
     }
 
     try {
-        const result = await service.updateProject(project);
+        const result = await service.updateProject(projectId, userId, project);
         return res.status(200).json({
             "success": true,
             "message": "OK",

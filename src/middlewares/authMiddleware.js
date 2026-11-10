@@ -17,7 +17,7 @@ function authMiddleware(req, res, next) {
     };
     next();
   } catch (err) {
-    return res.status(403).json({ message: 'Token Invalid or Expired' });
+    return res.status(401).json({ message: 'Token Invalid or Expired' });
   }
 }
 

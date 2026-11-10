@@ -5,10 +5,38 @@ function isValidId(id) {
     return true;
 }
 
+function validString(value, opt = {}) {
+    const { required = true, min = 0, max = Infinity, trim = true } = opt;
+    if (value === undefined || value === null) {
+        if (required) return { ok: false, msg: "The string cannot be empty" };
+        return { ok: true, value: '' };
+    }
+    if (typeof value !== "string") {
+        return { ok: false, msg: "Must be string" };
+    }
+
+    const v = trim ? value.trim() : value;
+
+    if (v.length === 0) {
+        if (required) return { ok: false, msg: "The string cannot be empty" };
+        return { ok: true, value: v };
+    }
+
+    const len = [...v].length; 
+    if (len < min) return { ok: false, msg: `Length must more than ${min}` };
+    if (len > max) return { ok: false, msg: `Length must less than ${max}` };
+
+    return { ok: true, value: v };
+}
+
 async function createProject(req, res, next) {
     const { name, description = null} = req.body;
     const userId = req.user.userId;
-    if (!name || !isValidId(userId)) {
+    if (!name || 
+        !isValidId(userId) ||
+        !validString(name, { max: 20 }).ok ||
+        !validString(description, { require: false, max: 50 }).ok
+    ) {
         return res.status(400).json({ error: "Bad Request" });
     }
     const project = {
@@ -82,7 +110,8 @@ async function updateProject(req, res, next) {
     const userId = Number(req.user.userId);
     if (!isValidId(projectId) ||
         !isValidId(userId) || 
-        !name
+        !validString(name, { max: 20 }).ok ||
+        !validString(description, { require: false, max: 50 }).ok
     ) {
         return res.status(400).json({ error: "Bad Request" });
     }

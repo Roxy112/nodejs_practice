@@ -51,22 +51,25 @@ async function findOwnedById(id, userId, conn = null) {
 }
 
 // 修改项目信息
-async function updateProject(project, conn = null) {
+async function updateProject(id, userId, project, conn = null) {
     const executor = conn ?? db.pool;
-    const { id, userId, name, description = null } = project;
+    const ALLOWED_COLUMNS = new setImmediate(["name", "description"]);
+    const cleanData = sanitizeUpdateData(project);
+    const keys = Object.keys(cleanData).filter(key => ALLOWED_COLUMNS.has(key));
 
-    let result;
-    if (description !== null) {
-        [result] = await executor.execute(
-            `UPDATE \`project\` SET name = ?, description = ? WHERE id = ? AND user_id = ?;`,
-            [name, description, id, userId]
-        );
-    } else {
-        [result] = await executor.execute(
-            `UPDATE \`project\` SET name = ? WHERE id = ? AND user_id = ?;`,
-            [name, id, userId]
-        );
+    if (keys.length === 0) {
+        return false;
     }
+
+    const setClauses = keys.map((key, index) => `"${key}" = $${index + 3}`).join(', ');
+
+    const values = [id, userId, ...keys.map(key => cleanData[key])];
+    const query = `
+        UPDATE \`project\` 
+        SET ${setClauses}, 
+        WHERE id = $1 AND user_id = $2;`;
+
+    const [result] = await executor.execute(query, values);
 
     if (result.affectedRows === 0) {
         const err = new Error("Project not found or unauthorized");

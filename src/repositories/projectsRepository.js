@@ -59,7 +59,9 @@ async function updateProject(id, userId, project, conn = null) {
     );
 
     if (keys.length === 0) {
-        return false;
+        const err = new Error("Empty request");
+        err.status = 400;
+        throw err;
     }
 
     const setClauses = keys.map((key, index) => `\`${key}\` = ?`).join(', ');
@@ -78,7 +80,7 @@ async function updateProject(id, userId, project, conn = null) {
         throw err;
     }
 
-    return true;
+    return findOwnedById(id, userId);
 }
 
 // 删除项目

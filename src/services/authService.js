@@ -10,7 +10,7 @@ async function register(user) {
     const result = await repository.createUser({
         "name": user.name,
         "account": user.account,
-        "password": passwordHash,
+        "password_hash": passwordHash,
     });
     return result;
 }

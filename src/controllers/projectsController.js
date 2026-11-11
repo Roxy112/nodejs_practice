@@ -30,7 +30,7 @@ function validateString(value, opt = {}) {
 }
 
 async function createProject(req, res, next) {
-    const { name, description = null} = req.body;
+    const { name, description = null} = req.body ?? {};
     const userId = req.user.userId;
     if (!name || 
         !isValidId(userId) ||
@@ -112,7 +112,8 @@ async function updateProject(req, res, next) {
         !isValidId(userId) || 
         !validateString(name, { required: false, max: 20 }).ok ||
         !validateString(description, { required: false, max: 50 }).ok ||
-        (!name && !description)
+        (name === undefined && description === undefined) ||
+        name.trim() === null
     ) {
         return res.status(400).json({ error: "Bad Request" });
     }

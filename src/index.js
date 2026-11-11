@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 const projectsRouter = require("./routes/projects");
 // const tasksRouter = require("./routes/tasks");
 
-const { authMiddleware } = require("./middlewares/authMiddleware");
+// const { authMiddleware } = require("./middlewares/authMiddleware");
 
 const app = express();
 
@@ -20,37 +20,34 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-// 服务端密钥
-const JWT_SECRET = process.env.JWT_SECRET;
+// // 服务端密钥
+// const JWT_SECRET = process.env.JWT_SECRET;
 
-// 登录接口：签发 Token
-app.post('/api/login', (req, res) => {
-    const { username, password } = req.body;
+// // 登录接口：签发 Token
+// app.post('/api/login', (req, res) => {
+//     const { username, password } = req.body;
 
-    // 1. 模拟校验用户名和密码
-    if (username !== 'admin' || password !== '123456') {
-        return res.status(401).json({ message: '账号或密码错误' });
-    }
+//     // 1. 模拟校验用户名和密码
+//     if (username !== 'admin' || password !== '123456') {
+//         return res.status(404).json({ message: '账号或密码错误' });
+//     }
 
-    // 2. 定义载荷数据
-    const payload = {
-        userId: 101,
-        username: 'admin',
-        role: 'manager'
-    };
+//     // 2. 定义载荷数据
+//     const payload = {
+//         userId: 101,
+//         username: 'admin',
+//         role: 'manager'
+//     };
 
-    // 3. 生成 Token，设置有效时间为 2 小时
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '2h' });
+//     // 3. 生成 Token，设置有效时间为 2 小时
+//     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '2h' });
 
-    // 4. 返回给前端
-    res.json({
-        message: '登录成功',
-        token: token
-    });
-});
-
-app.use(authMiddleware);
-
+//     // 4. 返回给前端
+//     res.json({
+//         message: '登录成功',
+//         token: token
+//     });
+// });
 
 // app.use("/api/v1/auth", authRouter);  TODO
 // app.use("/api/v1/users", authRouter);  TODO

@@ -5,7 +5,7 @@ function isValidId(id) {
     return true;
 }
 
-function validString(value, opt = {}) {
+function validateString(value, opt = {}) {
     const { required = true, min = 0, max = Infinity, trim = true } = opt;
     if (value === undefined || value === null) {
         if (required) return { ok: false, msg: "The string cannot be empty" };
@@ -34,8 +34,8 @@ async function createProject(req, res, next) {
     const userId = req.user.userId;
     if (!name || 
         !isValidId(userId) ||
-        !validString(name, { max: 20 }).ok ||
-        !validString(description, { require: false, max: 50 }).ok
+        !validateString(name, { max: 20 }).ok ||
+        !validateString(description, { required: false, max: 50 }).ok
     ) {
         return res.status(400).json({ error: "Bad Request" });
     }
@@ -106,12 +106,13 @@ async function getProject(req, res, next) {
 
 async function updateProject(req, res, next) {
     const projectId = Number( req.params.projectId );
-    const { name, description = null } = req.body ?? {};
+    const { name, description } = req.body ?? {};
     const userId = Number(req.user.userId);
     if (!isValidId(projectId) ||
         !isValidId(userId) || 
-        !validString(name, { require: false, max: 20 }).ok ||
-        !validString(description, { require: false, max: 50 }).ok
+        !validateString(name, { required: false, max: 20 }).ok ||
+        !validateString(description, { required: false, max: 50 }).ok ||
+        (!name && !description)
     ) {
         return res.status(400).json({ error: "Bad Request" });
     }
@@ -151,7 +152,7 @@ async function deleteProject(req, res, next) {
 
     try {
         await service.deleteProject(id, userId, cascade);
-        return res.status(204);
+        return res.status(204).end();
     } catch (error) {
         next(error);
     }

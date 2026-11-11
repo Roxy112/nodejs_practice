@@ -80,7 +80,7 @@ async function updateProject(id, userId, project, conn = null) {
         throw err;
     }
 
-    return findOwnedById(id, userId);
+    return findOwnedById(id, userId, conn);
 }
 
 // 删除项目

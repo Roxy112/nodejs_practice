@@ -9,7 +9,7 @@
 支持创建, 删除, 修改, 查询任务, 
 可以设置截止日期
 包含优先级: low、medium、high、urgent;
-状态: 待处理(pending)、进行中(in_progress)、已完成(done)、已取消(canceled);
+状态: 待处理(pending)、进行中(in_progress)、已完成(completed)、已取消(canceled);
 
 ## 实体属性
 User: id(PK), name, account, password_hash, created_at, updated_at;

@@ -2,6 +2,8 @@ const fs = require("fs/promises");
 const path = require("path");
 const mysql = require("mysql2/promise");
 
+require('dotenv').config();
+
 const dbConfig = {
     host: process.env.DB_HOST || 'localhost',
     port: Number(process.env.DB_PORT) || 3306,

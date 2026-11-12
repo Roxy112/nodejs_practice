@@ -10,8 +10,8 @@
 
 -- 1. 插入用户数据 (密码明文示例均为 123456 的预哈希串)
 INSERT IGNORE INTO `user` (`id`, `name`, `account`, `password_hash`) VALUES
-(1, '系统管理员', 'admin@example.com', '$2a$12$e8YkZ8u2qf4kY5sYV7jXeeH6z.W9gU/6lZ1v1mG1q2w3e4r5t6y7u'),
-(2, '张三', 'zhangsan@example.com', '$2a$12$9876543210zyxwvutsrqponmlkjihgfedcba0987654321fedcba');
+(1, '系统管理员', 'admin@example.com', '$2b$12$ofWD2ejizAF3eliNDFJoXe0cZa1yyIIa8s5FiOrUQe4R4AGrxfYVy'),
+(2, '张三', 'zhangsan@example.com', '$2b$12$ofWD2ejizAF3eliNDFJoXe0cZa1yyIIa8s5FiOrUQe4R4AGrxfYVy');
 
 -- 2. 插入关联项目数据
 INSERT IGNORE INTO `project` (`id`, `user_id`, `name`, `description`) VALUES

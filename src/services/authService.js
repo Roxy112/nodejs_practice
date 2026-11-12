@@ -4,26 +4,29 @@ const bcrypt = require("bcrypt");
 
 const SALT_ROUNDS = 12;
 
-// 注册：哈希密码后交给 repository 存储
 async function register(user) {
+    const user = await repository.getUser(user.account);
+    if (!user) {
+        const error = new Error("This account is already registered");
+        error.status = 409;
+        throw error;
+    }
     const passwordHash = await bcrypt.hash(user.plainPassword, SALT_ROUNDS);
     const result = await repository.createUser({
         "name": user.name,
         "account": user.account,
-        "password_hash": passwordHash,
+        "password_hash": passwordHash
     });
     return result;
 }
 
-// 登录：取出哈希，比对密码
-async function login(account, plainPassword) {
-    const user = await repository.findUserByAccount(account);
+async function login(account, password) {
+    const user = await repository.getUser(account);
     if (!user) {
-        // 统一抛出模糊的错误信息，避免泄露“用户是否存在”
         throw new Error("Invalid credentials");
     }
 
-    const isValid = await bcrypt.compare(plainPassword, user.password_hash);
+    const isValid = await bcrypt.compare(password, user.password_hash);
     if (!isValid) {
         throw new Error("Invalid credentials");
     }
@@ -31,8 +34,8 @@ async function login(account, plainPassword) {
     return user; 
 }
 
-async function getUserInformation(account) {
-    const user = await repository.findUserByAccount(account);
+async function getUser(account) {
+    const user = await repository.getUser(account);
     if (!user) {
         throw new Error("User does not exist");
     }
@@ -43,5 +46,5 @@ async function getUserInformation(account) {
 module.exports = {
     register,
     login,
-    getUserInformation
+    getUser
 }

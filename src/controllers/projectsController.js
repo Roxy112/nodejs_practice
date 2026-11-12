@@ -1,18 +1,20 @@
 const service = require("../services/projectsService");
 
+const z = require("zod");
+
 function isValidId(id) {
     if (!Number.isInteger(id) || id <= 0) return false;
     return true;
 }
 
-function validateString(value, opt = {}) {
+/* function validateString(value, opt = {}) {
     const { required = true, min = 0, max = Infinity, trim = true } = opt;
     if (value === undefined || value === null) {
         if (required) return { ok: false, msg: "The string cannot be empty" };
-        return { ok: true, value: '' };
+        return { ok: true, value: "" };
     }
     if (typeof value !== "string") {
-        return { ok: false, msg: "Must be string" };
+        return { ok: false, msg: "Must be a string" };
     }
 
     const v = trim ? value.trim() : value;
@@ -23,30 +25,38 @@ function validateString(value, opt = {}) {
     }
 
     const len = [...v].length; 
-    if (len < min) return { ok: false, msg: `Length must more than ${min}` };
-    if (len > max) return { ok: false, msg: `Length must less than ${max}` };
+    if (len < min) return { ok: false, msg: `Length must be at least than ${min}` };
+    if (len > max) return { ok: false, msg: `Length must be at most than ${max}` };
 
     return { ok: true, value: v };
-}
+} */
+
+const createProjectSchema = z
+    .object({
+        name: z.string().min(1, "The string cannot be empty").max(20), 
+        description: z.string().min().max(50).nullable(),
+    })
+    .strict();
+
 
 async function createProject(req, res, next) {
-    const { name, description = null} = req.body ?? {};
     const userId = req.user.userId;
-    if (!name || 
-        !isValidId(userId) ||
-        !validateString(name, { max: 20 }).ok ||
-        !validateString(description, { required: false, max: 50 }).ok
-    ) {
-        return res.status(400).json({ error: "Bad Request" });
+
+    if (!isValidId(userId)) {
+        return res.status(400).json({ error: "Invalid userId" });
     }
-    const project = {
-        name,
-        description,
-        userId
-    }
+    const result = createProjectSchema.safeParse(req.body);
+    if (!result.success) {
+    return res.status(400).json({
+      error: result.error.issues.map((issue) => ({
+        path: issue.path.join(".") || "(root)",
+        message: issue.message,
+      })),
+    });
+  }
 
     try {
-        const result = await service.createProject(project);
+        const result = await service.createProject(userId, result.data);
         return res.status(201).json({
             "success": true,
             "message": "Created",
@@ -104,27 +114,37 @@ async function getProject(req, res, next) {
     }
 }
 
+const updateProjectSchema = z
+        .object({
+            name: z.string().min(1, "The String cannot be empty").max(20),
+            description: z.string().min(0).max(50).nullable()
+        })
+        .partial()
+        .strict()
+        .refine((data) => Object.keys(data).length > 0, {
+            message: "No fields provided to update",
+        });
+
 async function updateProject(req, res, next) {
     const projectId = Number( req.params.projectId );
-    const { name, description } = req.body ?? {};
-    const userId = Number(req.user.userId);
-    if (!isValidId(projectId) ||
-        !isValidId(userId) || 
-        !validateString(name, { required: false, max: 20 }).ok ||
-        !validateString(description, { required: false, max: 50 }).ok ||
-        (name === undefined && description === undefined) ||
-        name.trim() === null
-    ) {
-        return res.status(400).json({ error: "Bad Request" });
-    }
+    const userId = Number(req.user?.userId);
 
-    const project = {
-        name,
-        description,
+    if (!isValidId(projectId) || isValidId(userId)) {
+        return res.status(400).json({ error: "Invalid projectId" });
+    }
+    
+    const result = updateProjectSchema.safeParse(req.body);
+    if (!result.success) {
+        return res.status(400).json({
+            error: result.error.issues.map((issue) => ({
+                path: issue.path.join(".") || "(root)",
+                message: issue.message,
+            })),
+        });
     }
 
     try {
-        const result = await service.updateProject(projectId, userId, project);
+        const result = await service.updateProject(projectId, userId, result.data);
         return res.status(200).json({
             "success": true,
             "message": "OK",

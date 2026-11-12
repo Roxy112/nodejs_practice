@@ -1,9 +1,9 @@
 const db = require("../config/db");
 
 // 创建Project
-async function createProject(project, conn = null) {
+async function createProject(userId, project, conn = null) {
     const executor = conn ?? db.pool;
-    const { userId, name, description = null } = project;
+    const { name, description = null } = project;
 
     const [result] = await executor.execute(
         `INSERT INTO \`project\` (user_id, name, description) VALUES (?, ?, ?);`,

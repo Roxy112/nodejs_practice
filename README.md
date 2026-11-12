@@ -39,4 +39,3 @@ Task:id(PK), project_id(FK), name, description, deadline, priority, status, crea
 创建任务时不允许客户端指定任务 ID、创建时间等服务端字段。
 更新时必须验证状态、优先级是否合法。
 截止日期使用统一的 ISO 8601 日期时间格式。
-本阶段不支持直接修改任务所属项目；后续可以单独设计任务迁移功能。

@@ -22,6 +22,6 @@ INSERT IGNORE INTO `project` (`id`, `user_id`, `name`, `description`) VALUES
 INSERT IGNORE INTO `task` (`id`, `project_id`, `name`, `description`, `status`, `priority`, `deadline`) VALUES
 (1, 1, '配置自动化部署流水线', '接入 GitLab CI', 'in_progress', 'urgent', '2026-11-20 18:00:00'),
 (2, 1, '集成错误监控 Sentry', '统一前端与服务端崩溃上报', 'pending', 'high', '2026-11-25 12:00:00'),
-(2, 2, '设计数据库 ER 模型', '完成模型设计', 'completed', 'high', '2026-11-10 18:00:00'),
-(3, 2, '设计数据库 ER 模型', '完成 user、project、task 的关联表设计', 'completed', 'high', '2026-11-10 18:00:00'),
-(4, 2, '编写 Repository 单元测试', '覆盖用户越权与事务逻辑', 'pending', 'medium', NULL);
+(3, 2, '设计数据库 ER 模型', '完成模型设计', 'completed', 'high', '2026-11-10 18:00:00'),
+(4, 2, '设计数据库 ER 模型', '完成 user、project、task 的关联表设计', 'completed', 'high', '2026-11-10 18:00:00'),
+(5, 2, '编写 Repository 单元测试', '覆盖用户越权与事务逻辑', 'pending', 'medium', NULL);

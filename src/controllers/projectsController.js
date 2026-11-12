@@ -45,10 +45,10 @@ async function createProject(req, res, next) {
     if (!isValidId(userId)) {
         return res.status(400).json({ error: "Invalid userId" });
     }
-    const result = createProjectSchema.safeParse(req.body);
-    if (!result.success) {
+    const validation = createProjectSchema.safeParse(req.body);
+    if (!validation.success) {
     return res.status(400).json({
-      error: result.error.issues.map((issue) => ({
+      error: validation.error.issues.map((issue) => ({
         path: issue.path.join(".") || "(root)",
         message: issue.message,
       })),
@@ -56,7 +56,7 @@ async function createProject(req, res, next) {
   }
 
     try {
-        const result = await service.createProject(userId, result.data);
+        const result = await service.createProject(userId, validation.data);
         return res.status(201).json({
             "success": true,
             "message": "Created",
@@ -133,10 +133,10 @@ async function updateProject(req, res, next) {
         return res.status(400).json({ error: "Invalid projectId" });
     }
     
-    const result = updateProjectSchema.safeParse(req.body);
-    if (!result.success) {
+    const validation = updateProjectSchema.safeParse(req.body);
+    if (!validation.success) {
         return res.status(400).json({
-            error: result.error.issues.map((issue) => ({
+            error: validation.error.issues.map((issue) => ({
                 path: issue.path.join(".") || "(root)",
                 message: issue.message,
             })),
@@ -144,7 +144,7 @@ async function updateProject(req, res, next) {
     }
 
     try {
-        const result = await service.updateProject(projectId, userId, result.data);
+        const result = await service.updateProject(projectId, userId, validation.data);
         return res.status(200).json({
             "success": true,
             "message": "OK",

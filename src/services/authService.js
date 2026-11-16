@@ -1,5 +1,5 @@
 const db = require("../config/db");
-const repository = require("../repositories/authRepository");
+const repository = require("../repositories/userRepository");
 const bcrypt = require("bcrypt");
 
 const SALT_ROUNDS = 12;

@@ -19,6 +19,7 @@ const accountSchema = z
                 ? "Account is required"
                 : "Invalid Account",
     })
+    .max(50)
     .toLowerCase();
 const passwordSchema = z
     .string()

@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS `user` (
     `name` VARCHAR(50) NOT NULL COMMENT '用户昵称/姓名',
     `account` VARCHAR(50) NOT NULL COMMENT '登录账号',
     `password_hash` VARCHAR(255) NOT NULL COMMENT '哈希密码',
+    `role` ENUM('admin', 'user') NOT NULL DEFAULT 'user' COMMENT '用户角色',
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),

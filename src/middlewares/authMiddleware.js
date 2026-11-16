@@ -1,24 +1,40 @@
 const jwt = require("jsonwebtoken");
+const { verifyAccessToken } = require("../utils/tokens");
 
 function authMiddleware(req, res, next) {
-  const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.split(' ')[1];
+    const authHeader = req.headers.authorization;
+        if (!authHeader) {
+        return res.status(401).json({
+            message: "Not Provided Authentication Token"
+        });
+    }
 
-  if (!token) {
-    return res.status(401).json({ message: 'Not Provided Authentication Token' });
-  }
+    const match = /^Bearer +(\S+)$/i.exec(authHeader);
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // 将解析出的 payload 挂载到 req 对象上
-    req.user = {
-      userId: decoded.userId,
-      role: decoded.role
-    };
-    next();
-  } catch (err) {
-    return res.status(401).json({ message: 'Token Invalid or Expired' });
-  }
+    if (!match) {
+        return res.status(401).json({
+            message: "Authorization must use Bearer <token>"
+        });
+    }
+
+    const token = match[1];
+
+    if (!token) {
+        return res.status(401).json({ message: 'Not Provided Authentication Token' });
+    }
+
+    try {
+        const decoded = verifyAccessToken(token);
+        const userId = Number(decoded.sub);
+        if (!Number.isInteger(userId) || userId <= 0) throw err;
+        req.user = {
+            userId,
+            // role: decoded.role
+        };
+        next();
+    } catch (err) {
+        return res.status(401).json({ message: 'Token Invalid or Expired' });
+    }
 }
 
 module.exports = { 

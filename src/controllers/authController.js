@@ -2,6 +2,15 @@ const service = require("../services/authService");
 
 const z = require("zod");
 
+const {
+  signAccessToken,
+  signRefreshToken,
+  hashToken,
+  ACCESS_TTL_MS,
+  REFRESH_TTL_MS,
+} = require('../utils/tokens');
+const crypto = require('crypto');
+
 const nameSchema = z.string.min(1).max(50);
 const accountSchema = z.email("Invalid Account").toLowerCase();
 const passwordSchema = z
@@ -48,7 +57,7 @@ async function register(req, res, next) {
         const result = await service.register(validation.data);
         return res.status(201).json({
             "success": true,
-            "message": "Registered",
+            "message": "Created",
             "data": {
                 "id": result.id,
                 "name": result.name,
@@ -72,21 +81,63 @@ async function login(req, res, next) {
   }
 
     try {
-        const account = validation.data.account;
-        const password = validation.data.password;
+        const { account, password } = validation.data;
 
-        await service.login(account, password);
+        const user = await service.login(account, password);
 
-        return res.status(201).json({
-            "success": true,
-            "message": "OK"
+        const jti = crypto.randomUUID();
+        const accessToken  = signAccessToken(user);
+        const refreshToken = signRefreshToken(user, jti);
+        
+        // 持久化刷新令牌（存哈希）
+        await RefreshToken.create({
+        data: {
+            userId: user.id,
+            jti,
+            tokenHash: hashToken(refreshToken),
+            userAgent: req.get('user-agent') ?? null,
+            ip: req.ip ?? null,
+            expiresAt: new Date(Date.now() + REFRESH_TTL_MS),
+        },
+        });
+
+        const cookieBase = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        };
+
+        res.cookie('access_token', accessToken, {
+        ...cookieBase,
+        path: '/',
+        maxAge: ACCESS_TTL_MS,
+        });
+        res.cookie('refresh_token', refreshToken, {
+        ...cookieBase,
+        path: '/api/auth/refresh', // 只在刷新接口上发送，缩小暴露面
+        maxAge: REFRESH_TTL_MS,
+        });
+
+        return res.status(200).json({
+        success: true,
+        accessToken,
+        user: {
+            id: user.id,
+            name: user.name,
+            role: user.role,
+        },
         });
     } catch (error) {
         next(error);
     }
 }
 
+async function logout(req, res, next) {
+    // TODO
+}
+
 module.exports = {
     login,
-    register
+    register,
+    logout
 };

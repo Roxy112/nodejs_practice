@@ -2,13 +2,14 @@ const service = require("../services/authService");
 
 const z = require("zod");
 
-// const {
-//   signAccessToken,
+const {
+    signAccessToken,
+    verifyAccessToken,
 //   signRefreshToken,
 //   hashToken,
 //   ACCESS_TTL_MS,
 //   REFRESH_TTL_MS,
-// } = require('../utils/tokens');
+} = require('../utils/tokens');
 // const crypto = require('crypto');
 
 const nameSchema = z.string().min(1).max(50);
@@ -126,13 +127,15 @@ async function login(req, res, next) {
         // maxAge: REFRESH_TTL_MS,
         // });
 
+        const accessToken = signAccessToken(user);
         return res.status(200).json({
-        success: true,
+        "success": true,
         accessToken,
-        user: {
-            id: user.id,
-            name: user.name,
-            role: user.role,
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "account": user.account,
+            // role: user.role,
         },
         });
     } catch (error) {

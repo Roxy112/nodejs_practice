@@ -5,13 +5,13 @@ const bcrypt = require("bcrypt");
 const SALT_ROUNDS = 12;
 
 async function register(user) {
-    const user = await repository.getUser(user.account);
-    if (!user) {
+    const account = await repository.getUser(user.account);
+    if (account) {
         const error = new Error("This account is already registered");
         error.status = 409;
         throw error;
     }
-    const passwordHash = await bcrypt.hash(user.plainPassword, SALT_ROUNDS);
+    const passwordHash = await bcrypt.hash(user.password, SALT_ROUNDS);
     const result = await repository.createUser({
         "name": user.name,
         "account": user.account,

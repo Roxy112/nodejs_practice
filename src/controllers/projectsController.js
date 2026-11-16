@@ -34,7 +34,7 @@ function isValidId(id) {
 const createProjectSchema = z
     .object({
         name: z.string().min(1, "The string cannot be empty").max(20), 
-        description: z.string().min().max(50).nullable(),
+        description: z.string().min(0).max(50).nullable(),
     })
     .strict();
 

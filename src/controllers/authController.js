@@ -2,16 +2,16 @@ const service = require("../services/authService");
 
 const z = require("zod");
 
-const {
-  signAccessToken,
-  signRefreshToken,
-  hashToken,
-  ACCESS_TTL_MS,
-  REFRESH_TTL_MS,
-} = require('../utils/tokens');
-const crypto = require('crypto');
+// const {
+//   signAccessToken,
+//   signRefreshToken,
+//   hashToken,
+//   ACCESS_TTL_MS,
+//   REFRESH_TTL_MS,
+// } = require('../utils/tokens');
+// const crypto = require('crypto');
 
-const nameSchema = z.string.min(1).max(50);
+const nameSchema = z.string().min(1).max(50);
 const accountSchema = z.email("Invalid Account").toLowerCase();
 const passwordSchema = z
     .string()
@@ -27,7 +27,7 @@ const passwordSchema = z
         message: "The password must contain at least one digit",
     });
 
-const userSchema = z
+const registerSchema = z
     .object({
         name: nameSchema,
         account: accountSchema,
@@ -38,12 +38,12 @@ const userSchema = z
 const loginSchema = z
     .object({
         account: accountSchema,
-        password: passwordSchema,
+        password: z.string(),
     })
     .strict();
 
 async function register(req, res, next) {
-    const validation = userSchema.safeParse(req.body);
+    const validation = registerSchema.safeParse(req.body);
     if (!validation.success) {
     return res.status(400).json({
       error: validation.error.issues.map((issue) => ({
@@ -70,7 +70,7 @@ async function register(req, res, next) {
 }
 
 async function login(req, res, next) {
-    const validation = userSchema.safeParse(req.body);
+    const validation = loginSchema.safeParse(req.body);
     if (!validation.success) {
     return res.status(400).json({
       error: validation.error.issues.map((issue) => ({
@@ -85,38 +85,38 @@ async function login(req, res, next) {
 
         const user = await service.login(account, password);
 
-        const jti = crypto.randomUUID();
-        const accessToken  = signAccessToken(user);
-        const refreshToken = signRefreshToken(user, jti);
+        // const jti = crypto.randomUUID();
+        // const accessToken  = signAccessToken(user);
+        // const refreshToken = signRefreshToken(user, jti);
         
-        // 持久化刷新令牌（存哈希）
-        await RefreshToken.create({
-        data: {
-            userId: user.id,
-            jti,
-            tokenHash: hashToken(refreshToken),
-            userAgent: req.get('user-agent') ?? null,
-            ip: req.ip ?? null,
-            expiresAt: new Date(Date.now() + REFRESH_TTL_MS),
-        },
-        });
+        // // 持久化刷新令牌（存哈希）
+        // await RefreshToken.create({
+        // data: {
+        //     userId: user.id,
+        //     jti,
+        //     tokenHash: hashToken(refreshToken),
+        //     userAgent: req.get('user-agent') ?? null,
+        //     ip: req.ip ?? null,
+        //     expiresAt: new Date(Date.now() + REFRESH_TTL_MS),
+        // },
+        // });
 
-        const cookieBase = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        };
+        // const cookieBase = {
+        // httpOnly: true,
+        // secure: process.env.NODE_ENV === 'production',
+        // sameSite: 'lax',
+        // };
 
-        res.cookie('access_token', accessToken, {
-        ...cookieBase,
-        path: '/',
-        maxAge: ACCESS_TTL_MS,
-        });
-        res.cookie('refresh_token', refreshToken, {
-        ...cookieBase,
-        path: '/api/auth/refresh', // 只在刷新接口上发送，缩小暴露面
-        maxAge: REFRESH_TTL_MS,
-        });
+        // res.cookie('access_token', accessToken, {
+        // ...cookieBase,
+        // path: '/',
+        // maxAge: ACCESS_TTL_MS,
+        // });
+        // res.cookie('refresh_token', refreshToken, {
+        // ...cookieBase,
+        // path: '/api/auth/refresh', // 只在刷新接口上发送，缩小暴露面
+        // maxAge: REFRESH_TTL_MS,
+        // });
 
         return res.status(200).json({
         success: true,

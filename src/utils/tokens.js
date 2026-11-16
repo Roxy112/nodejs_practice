@@ -23,7 +23,7 @@ function signAccessToken(user) {
         { sub: String(user.id)}, 
         ACCESS_SECRET,
         { 
-            algorithms: ["HS256"],
+            algorithm: "HS256",
             expiresIn: ACCESS_TTL, 
             issuer: ISSUER, 
             audience: AUDIENCE 
@@ -36,7 +36,7 @@ function signRefreshToken(user, jti) {
         { sub: String(user.id), jti },
         REFRESH_SECRET,
         { 
-            algorithms: ["HS256"],
+            algorithm: "HS256",
             expiresIn: REFRESH_TTL, 
             issuer: ISSUER, 
             audience: AUDIENCE 

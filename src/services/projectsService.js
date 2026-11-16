@@ -2,8 +2,8 @@ const projectRepository = require("../repositories/projectsRepository");
 const taskRepository = require("../repositories/taskRepository");
 const db = require("../config/db");
 
-async function createProject(project) {
-    const result = await projectRepository.createProject(project);
+async function createProject(userId, project) {
+    const result = await projectRepository.createProject(userId, project);
     return result;
 }
 

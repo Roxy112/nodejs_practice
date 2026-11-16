@@ -129,7 +129,7 @@ async function updateProject(req, res, next) {
     const projectId = Number( req.params.projectId );
     const userId = Number(req.user?.userId);
 
-    if (!isValidId(projectId) || isValidId(userId)) {
+    if (!isValidId(projectId) || !isValidId(userId)) {
         return res.status(400).json({ error: "Invalid projectId" });
     }
     

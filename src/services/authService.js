@@ -28,7 +28,9 @@ async function login(account, password) {
 
     const isValid = await bcrypt.compare(password, user.password_hash);
     if (!isValid) {
-        throw new Error("Invalid credentials");
+        const error = new Error("Invalid credentials");
+        error.status = 401;
+        throw error;
     }
 
     return user; 

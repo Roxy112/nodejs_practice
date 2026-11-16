@@ -4,7 +4,7 @@ const z = require("zod");
 
 const {
     signAccessToken,
-    verifyAccessToken,
+//   verifyAccessToken,
 //   signRefreshToken,
 //   hashToken,
 //   ACCESS_TTL_MS,

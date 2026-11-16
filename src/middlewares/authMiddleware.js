@@ -1,4 +1,3 @@
-const jwt = require("jsonwebtoken");
 const { verifyAccessToken } = require("../utils/tokens");
 
 function authMiddleware(req, res, next) {
@@ -26,7 +25,7 @@ function authMiddleware(req, res, next) {
     try {
         const decoded = verifyAccessToken(token);
         const userId = Number(decoded.sub);
-        if (!Number.isInteger(userId) || userId <= 0) throw err;
+        if (!Number.isInteger(userId) || userId <= 0) throw new Error('Invalid userId in token');
         req.user = {
             userId,
             // role: decoded.role

@@ -5,11 +5,15 @@ const crypto = require('crypto');
 const ACCESS_SECRET  = process.env.JWT_SECRET;
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
-if (!ACCESS_SECRET || !REFRESH_SECRET) {
-    throw new Error('JWT_SECRET and JWT_REFRESH_SECRET are not configured');
-}
-if (ACCESS_SECRET === REFRESH_SECRET) {
-    throw new Error('The keys for ACCESS and REFRESH must be different');
+// if (!ACCESS_SECRET || !REFRESH_SECRET) {
+//     throw new Error('JWT_SECRET and JWT_REFRESH_SECRET are not configured');
+// }
+// if (ACCESS_SECRET === REFRESH_SECRET) {
+//     throw new Error('The keys for ACCESS and REFRESH must be different');
+// }
+
+if (!ACCESS_SECRET) {
+    throw new Error('JWT_SECRET is not configured');
 }
 
 const ISSUER = 'taskHub';

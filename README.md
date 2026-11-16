@@ -12,7 +12,7 @@
 状态: 待处理(pending)、进行中(in_progress)、已完成(completed)、已取消(canceled);
 
 ## 实体属性
-User: id(PK), name, account, password_hash, created_at, updated_at;
+User: id(PK), name, account, password_hash, role, created_at, updated_at;
 Project:id(PK), user_id(FK), name, description, created_at, updated_at; 
 Task:id(PK), project_id(FK), name, description, deadline, priority, status, created_at, updated_at;
 

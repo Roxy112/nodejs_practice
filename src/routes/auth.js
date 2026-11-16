@@ -7,7 +7,7 @@ router.post("/register", controller.register);
 
 router.post("/login", controller.login);
 
-// router.use(authMiddleware);
+router.use(authMiddleware);
 
 router.post("/logout", controller.logout);
 

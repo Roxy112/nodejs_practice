@@ -9,7 +9,7 @@
 -- SET FOREIGN_KEY_CHECKS = 1;
 
 -- 1. 插入用户数据 (密码明文示例均为 123456 的预哈希串)
-INSERT IGNORE INTO `user` (`id`, `name`, `account`, `password_hash`) VALUES
+INSERT IGNORE INTO `user` (`id`, `name`, `account`, `password_hash`, `role`) VALUES
 (1, '系统管理员', 'admin@example.com', '$2b$12$ofWD2ejizAF3eliNDFJoXe0cZa1yyIIa8s5FiOrUQe4R4AGrxfYVy', 'admin'),
 (2, '张三', 'zhangsan@example.com', '$2b$12$ofWD2ejizAF3eliNDFJoXe0cZa1yyIIa8s5FiOrUQe4R4AGrxfYVy', 'user');
 

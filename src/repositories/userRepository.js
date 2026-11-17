@@ -45,7 +45,7 @@ async function getUserById(id, conn = null) {
 const ALLOWED_COLUMNS = new Set(["name", "account"]);
 
 async function updateUser(id, user, conn = null) {
-    if (!user || user.id == null) {
+    if (!user || id == null) {
         const err = new Error("Invalid user data or missing id");
         err.status = 400;
         throw err;

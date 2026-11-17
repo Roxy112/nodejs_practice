@@ -129,14 +129,14 @@ async function login(req, res, next) {
 
         const accessToken = signAccessToken(user);
         return res.status(200).json({
-        "success": true,
-        accessToken,
-        "user": {
-            "id": user.id,
-            "name": user.name,
-            "account": user.account,
-            // role: user.role,
-        },
+            "success": true,
+            accessToken,
+            "user": {
+                "id": user.id,
+                "name": user.name,
+                "account": user.account,
+                // role: user.role,
+            },
         });
     } catch (error) {
         next(error);

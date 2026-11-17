@@ -48,8 +48,8 @@ const userSchema = z
 
 const changePasswordSchema = z
     .object({
-        account: accountSchema,
-        password: passwordSchema
+        password: passwordSchema,
+        oldPassword: passwordSchema
     })
 
 module.exports = {

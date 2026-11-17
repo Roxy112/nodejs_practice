@@ -18,23 +18,30 @@ async function updateUser(id, user) {
     return result;
 }
 
-async function changePassword(id, account, password) {
+async function changePassword(id, password, oldPassword) {
     const user = await repository.getUserById(id);
     if (!user) {
         const error = new Error("Invalid credentials");
         error.status = 401;
         throw error;
     }
-    
-    const checkPassword = await bcrypt.compare(password, user.password_hash);
-    if (checkPassword) {
+
+    if (password === oldPassword) {
         const error = new Error("The old password cannot be the same as the new password");
         error.status = 401;
         throw error;
+    }  
+    
+    const checkPassword = await bcrypt.compare(oldPassword, user.password_hash);
+    if (!checkPassword) {
+        const error = new Error("Invalid credentials");
+        error.status = 401;
+        throw error;
     }
+
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
-    const result = await repository.changePassword(account, passwordHash);
+    const result = await repository.changePassword(id, passwordHash);
     return result;    
 }
 

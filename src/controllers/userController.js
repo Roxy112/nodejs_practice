@@ -71,14 +71,11 @@ async function changePassword(req, res, next) {
     }
 
     try {
-        const { account, password } = validation.data;
-        const result = await service.changePassword(id, account, password);
+        const { password, oldPassword } = validation.data;
+        await service.changePassword(id, password, oldPassword);
         return res.status(200).json({
             "success": true,
-            "message": "OK",
-            "data": {
-                "user": result
-            }
+            "message": "OK"
         });
     } catch (error) {
         next(error);

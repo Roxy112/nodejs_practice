@@ -38,17 +38,7 @@ async function login(account, password) {
     return user; 
 }
 
-async function getUser(account) {
-    const user = await repository.getUser(account);
-    if (!user) {
-        throw new Error("User does not exist");
-    }
-
-    return user;
-}
-
 module.exports = {
     register,
     login,
-    getUser
 }

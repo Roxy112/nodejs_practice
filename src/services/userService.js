@@ -13,8 +13,8 @@ async function getUser(id) {
     return user;
 }
 
-async function updateUser(user) {
-    const result = await repository.updateUser(user);
+async function updateUser(id, user) {
+    const result = await repository.updateUser(id, user);
     return result;
 }
 

@@ -33,18 +33,18 @@ async function getUserByAccount(account, conn = null) {
 
 async function getUserById(id, conn = null) {
     const executor = conn ?? db.pool;
-        const [result] = await executor.execute(
-            `SELECT id, name, account, created_at 
-            FROM \`user\` WHERE id = ?;`,
-            [id]
-        );
+    const [result] = await executor.execute(
+        `SELECT id, name, account, created_at 
+        FROM \`user\` WHERE id = ?;`,
+        [id]
+    );
     
-        return result[0] ?? null;
+    return result[0] ?? null;
 }
 
 const ALLOWED_COLUMNS = new Set(["name", "account"]);
 
-async function updateUser(user, conn = null) {
+async function updateUser(id, user, conn = null) {
     if (!user || user.id == null) {
         const err = new Error("Invalid user data or missing id");
         err.status = 400;
@@ -52,7 +52,6 @@ async function updateUser(user, conn = null) {
     }
 
     const executor = conn ?? db.pool;
-    const { id } = user;
 
     const keys = Object.keys(user || {}).filter(
         key => ALLOWED_COLUMNS.has(key) && 

@@ -42,7 +42,6 @@ const loginSchema = z
 
 const userSchema = z
     .object({
-        id: idSchema,
         name: nameSchema,
         account: accountSchema
     })

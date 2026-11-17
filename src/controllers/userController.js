@@ -25,6 +25,11 @@ async function getUser(req, res, next) {
 }
 
 async function updateUser(req, res, next) {
+    const id = Number(req.user.userId);
+    if (!Number.isInteger(id) || id <= 0) {
+        return res.status(400).json({ error: "Invalid userId" });
+    }
+
     const validation = userSchema.safeParse(req.body);
     if (!validation.success) {
         return res.status(400).json({
@@ -36,7 +41,7 @@ async function updateUser(req, res, next) {
     }
 
     try {
-        const result = await service.updateUser(validation.data);
+        const result = await service.updateUser(id, validation.data);
         return res.status(200).json({
             "success": true,
             "message": "OK",

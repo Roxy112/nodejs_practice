@@ -19,7 +19,7 @@ async function updateUser(id, user) {
 }
 
 async function changePassword(account, password) {
-    const user = await repository.getUser(account);
+    const user = await repository.getUserByAccount(account);
     if (!user) {
         const error = new Error("Invalid credentials");
         error.status = 401;

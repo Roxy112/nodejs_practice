@@ -34,7 +34,7 @@ async function getUserByAccount(account, conn = null) {
 async function getUserById(id, conn = null) {
     const executor = conn ?? db.pool;
     const [result] = await executor.execute(
-        `SELECT id, name, account, created_at 
+        `SELECT id, name, account, password_hash, created_at 
         FROM \`user\` WHERE id = ?;`,
         [id]
     );
@@ -75,7 +75,7 @@ async function updateUser(id, user, conn = null) {
     const [result] = await executor.execute(query, values);
 
     if (result.affectedRows === 0) {
-        const err = new Error("Project not found or unauthorized");
+        const err = new Error("User not found or unauthorized");
         err.status = 404;
         throw err;
     }
@@ -92,6 +92,12 @@ async function changePassword(account, password_hash, conn = null) {
         WHERE account = ?;`,
         [password_hash, account]
     );
+
+    if (result.affectedRows === 0) {
+        const err = new Error("User not found or unauthorized");
+        err.status = 404;
+        throw err;
+    }
 
     return result[0] ?? null;
 }

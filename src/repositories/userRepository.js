@@ -83,14 +83,14 @@ async function updateUser(id, user, conn = null) {
     return { id, name, account };
 }
 
-async function changePassword(account, password_hash, conn = null) {
+async function changePassword(id, password_hash, conn = null) {
     const executor = conn ?? db.pool;
 
     const [result] = await executor.execute(
         `UPDATE \`user\`
         SET password_hash = ? 
-        WHERE account = ?;`,
-        [password_hash, account]
+        WHERE id = ?;`,
+        [password_hash, id]
     );
 
     if (result.affectedRows === 0) {

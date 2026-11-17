@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const SALT_ROUNDS = 12;
 
 async function register(user) {
-    const account = await repository.getUser(user.account);
+    const account = await repository.getUserByAccount(user.account);
     if (account) {
         const error = new Error("This account is already registered");
         error.status = 409;
@@ -21,7 +21,7 @@ async function register(user) {
 }
 
 async function login(account, password) {
-    const user = await repository.getUser(account);
+    const user = await repository.getUserByAccount(account);
     if (!user) {
         const error = new Error("Invalid credentials");
         error.status = 401;

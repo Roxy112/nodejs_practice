@@ -55,6 +55,11 @@ async function updateUser(req, res, next) {
 }
 
 async function changePassword(req, res, next) {
+    const id = Number(req.user.userId);
+    if (!Number.isInteger(id) || id <= 0) {
+        return res.status(400).json({ error: "Invalid userId" });
+    }
+
     const validation = changePasswordSchema.safeParse(req.body);
     if (!validation.success) {
         return res.status(400).json({
@@ -67,7 +72,7 @@ async function changePassword(req, res, next) {
 
     try {
         const { account, password } = validation.data;
-        const result = await service.changePassword(account, password);
+        const result = await service.changePassword(id, account, password);
         return res.status(200).json({
             "success": true,
             "message": "OK",

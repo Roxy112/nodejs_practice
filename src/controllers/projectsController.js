@@ -1,6 +1,9 @@
 const service = require("../services/projectsService");
 
-const z = require("zod");
+const { 
+    createProjectSchema,
+    updateProjectSchema
+} = require("../schemas/project");
 
 function isValidId(id) {
     if (!Number.isInteger(id) || id <= 0) return false;
@@ -30,14 +33,6 @@ function isValidId(id) {
 
     return { ok: true, value: v };
 } */
-
-const createProjectSchema = z
-    .object({
-        name: z.string().min(1, "The string cannot be empty").max(20), 
-        description: z.string().min(0).max(50).nullable(),
-    })
-    .strict();
-
 
 async function createProject(req, res, next) {
     const userId = req.user.userId;
@@ -114,16 +109,7 @@ async function getProject(req, res, next) {
     }
 }
 
-const updateProjectSchema = z
-        .object({
-            name: z.string().min(1, "The String cannot be empty").max(20),
-            description: z.string().min(0).max(50).nullable()
-        })
-        .partial()
-        .strict()
-        .refine((data) => Object.keys(data).length > 0, {
-            message: "No fields provided to update",
-        });
+
 
 async function updateProject(req, res, next) {
     const projectId = Number( req.params.projectId );

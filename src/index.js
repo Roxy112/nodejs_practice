@@ -4,8 +4,9 @@ const { testConnection } = require("./config/db");
 const express = require('express');
 
 const authRouter = require("./routes/auth");
-const projectsRouter = require("./routes/projects");
-const tasksRouter = require("./routes/tasks");
+const userRouter = require("./routes/users");
+const projectRouter = require("./routes/projects");
+// const tasksRouter = require("./routes/tasks");
 
 const app = express();
 
@@ -19,7 +20,8 @@ app.use(express.json());
 
 
 app.use("/api/v1/auth", authRouter); 
-app.use("/api/v1/projects", projectsRouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/projects", projectRouter);
 // app.use("/api/v1/tasks", tasksRouter); 
 
 app.use((req, res) => {

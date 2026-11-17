@@ -1,7 +1,5 @@
 const service = require("../services/authService");
 
-const z = require("zod");
-
 const {
     signAccessToken,
 //   verifyAccessToken,
@@ -12,55 +10,18 @@ const {
 } = require('../utils/tokens');
 // const crypto = require('crypto');
 
-const nameSchema = z.string().min(1).max(50);
-const accountSchema = z
-    .email({
-        error: (issue) =>
-            issue.input === undefined
-                ? "Account is required"
-                : "Invalid Account",
-    })
-    .max(50)
-    .toLowerCase();
-const passwordSchema = z
-    .string()
-    .min(8, `Password length must be at least than 8`)
-    .max(72, `Password length must be at most than 72`)
-    .refine((pwd) => /[A-Z]/.test(pwd), {
-        message: "The password must contain at least one uppercase letter",
-    })
-    .refine((pwd) => /[a-z]/.test(pwd), {
-        message: "The password must contain at least one lowercase letter",
-    })
-    .refine((pwd) => /[0-9]/.test(pwd), {
-        message: "The password must contain at least one digit",
-    });
-
-const registerSchema = z
-    .object({
-        name: nameSchema,
-        account: accountSchema,
-        password: passwordSchema,
-    })
-    .strict();
-
-const loginSchema = z
-    .object({
-        account: accountSchema,
-        password: z.string(),
-    })
-    .strict();
+const { registerSchema, loginSchema } = require("../schemas/user");
 
 async function register(req, res, next) {
     const validation = registerSchema.safeParse(req.body);
     if (!validation.success) {
-    return res.status(400).json({
-      error: validation.error.issues.map((issue) => ({
-        path: issue.path.join(".") || "(root)",
-        message: issue.message,
-      })),
-    });
-  }
+        return res.status(400).json({
+            error: validation.error.issues.map((issue) => ({
+                path: issue.path.join(".") || "(root)",
+                message: issue.message,
+            })),
+        });
+    }
 
     try {
         const result = await service.register(validation.data);
@@ -81,13 +42,13 @@ async function register(req, res, next) {
 async function login(req, res, next) {
     const validation = loginSchema.safeParse(req.body);
     if (!validation.success) {
-    return res.status(400).json({
-      error: validation.error.issues.map((issue) => ({
-        path: issue.path.join(".") || "(root)",
-        message: issue.message,
-      })),
-    });
-  }
+        return res.status(400).json({
+            error: validation.error.issues.map((issue) => ({
+                path: issue.path.join(".") || "(root)",
+                message: issue.message,
+            })),
+        });
+    }
 
     try {
         const { account, password } = validation.data;
@@ -129,14 +90,14 @@ async function login(req, res, next) {
 
         const accessToken = signAccessToken(user);
         return res.status(200).json({
-        "success": true,
-        accessToken,
-        "user": {
-            "id": user.id,
-            "name": user.name,
-            "account": user.account,
-            // role: user.role,
-        },
+            "success": true,
+            accessToken,
+            "user": {
+                "id": user.id,
+                "name": user.name,
+                "account": user.account,
+                // role: user.role,
+            },
         });
     } catch (error) {
         next(error);

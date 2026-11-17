@@ -20,12 +20,23 @@ async function createUser(user, conn = null) {
     };
 }
 
-async function getUser(account, conn = null) {
+async function getUserByAccount(account, conn = null) {
     const executor = conn ?? db.pool;
         const [result] = await executor.execute(
-            `SELECT id, name, account, password_hash 
+            `SELECT id, name, account, password_hash, created_at 
             FROM \`user\` WHERE account = ?;`,
             [account]
+        );
+    
+        return result[0] ?? null;
+}
+
+async function getUserById(id, conn = null) {
+    const executor = conn ?? db.pool;
+        const [result] = await executor.execute(
+            `SELECT id, name, account, created_at 
+            FROM \`user\` WHERE id = ?;`,
+            [id]
         );
     
         return result[0] ?? null;
@@ -54,7 +65,7 @@ async function updateUser(user, conn = null) {
         throw err;
     }
 
-    const setClauses = keys.map((key, index) => `\`${key}\` = ?`).join(', ');
+    const setClauses = keys.map((key) => `\`${key}\` = ?`).join(', ');
 
     const values = [...keys.map(key => user[key]), id];
     const query = `
@@ -69,17 +80,27 @@ async function updateUser(user, conn = null) {
         err.status = 404;
         throw err;
     }
-
-    return getUser(id, conn);
+    const { name, account } = await getUserById(id, conn);
+    return { id, name, account };
 }
 
-async function changePassword(user, conn = null) {
-    
+async function changePassword(account, password_hash, conn = null) {
+    const executor = conn ?? db.pool;
+
+    const [result] = await executor.execute(
+        `UPDATE \`user\`
+        SET password_hash = ? 
+        WHERE account = ?;`,
+        [password_hash, account]
+    );
+
+    return result[0] ?? null;
 }
 
 module.exports = {
     createUser,
-    getUser,
+    getUserByAccount,
+    getUserById,
     updateUser,
     changePassword
 };

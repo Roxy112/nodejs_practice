@@ -7,7 +7,7 @@ async function createTask(req, res, next) {
     if (!Number.isInteger(userId) || userId <= 0) {
         return res.status(400).json({ error: "Invalid userId" });
     }
-    const projectId = Number(req.params);
+    const projectId = Number(req.params.projectId);
     if (!Number.isInteger(projectId) || projectId <= 0) {
         return res.status(400).json({ error: "Invalid projectId" });
     }
@@ -49,5 +49,5 @@ async function createTask(req, res, next) {
 
 module.exports = {
     createTask,
-    listTasks
+    // listTasks
 }

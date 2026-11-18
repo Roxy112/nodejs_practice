@@ -1,19 +1,24 @@
 const express = require("express");
 const router = express.Router();
 const { authMiddleware } = require("../middlewares/authMiddleware");
-const controller = require("../controllers/projectsController");
+const projectController = require("../controllers/projectsController");
+const tasksController = require("../controllers/tasksController");
 
-// 对该 router 下所有路由统一应用
 router.use(authMiddleware);
 
-router.post("/", controller.createProject);
+router.post("/", projectController.createProject);
 
-router.get("/", controller.listProjects);
+router.get("/", projectController.listProjects);
 
-router.get("/:projectId", controller.getProject);
+router.get("/:projectId", projectController.getProject);
 
-router.patch("/:projectId", controller.updateProject);
+router.patch("/:projectId", projectController.updateProject);
 
-router.delete("/:projectId", controller.deleteProject);
+router.delete("/:projectId", projectController.deleteProject);
+
+
+router.post("/:projectId/tasks", tasksController.createTask);
+
+// router.get("/:projectId/tasks", tasksController.listTasks);
 
 module.exports = router;

@@ -12,12 +12,22 @@ async function register(user) {
         throw error;
     }
     const passwordHash = await bcrypt.hash(user.password, SALT_ROUNDS);
-    const result = await repository.createUser({
-        "name": user.name,
-        "account": user.account,
-        "password_hash": passwordHash
-    });
-    return result;
+    try {
+        const result = await repository.createUser({
+            "name": user.name,
+            "account": user.account,
+            "password_hash": passwordHash
+        });
+        return result;
+    } catch (error) {
+        if (error?.code === "ER_DUP_ENTRY") {
+            const conflict = new Error("This account is already registered");
+            conflict.status = 409;
+            throw conflict;
+        }
+
+        throw error;
+    }
 }
 
 async function login(account, password) {

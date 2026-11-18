@@ -4,17 +4,22 @@ const db = require("../config/db");
 async function createTask(projectId, userId, task, conn = null) {
     const executor = conn ?? db.pool;
     const { name, description = null, priority = medium, deadline = null } = task;
+
+    const dbDeadline = deadline === null
+    ? null
+    : new Date(deadline).toISOString().slice(0, 19).replace("T", " ");
+
     const [result] = await executor.execute(
-        `INSERT \`task\` (
+        `INSERT INTO \`task\` (
             \`project_id\`, 
             \`name\`, 
             \`description\`, 
             \`priority\`, 
             \`deadline\`) 
-        SELECT id, ?, ?, ?, ?, ?
+        SELECT id, ?, ?, ?, ?
         FROM \`project\`
         WHERE id = ? AND user_id = ?;`,
-        [name, description, priority, deadline, projectId, userId]
+        [name, description, priority, dbDeadline, projectId, userId]
     );
 
     if (result.affectedRows === 0) {

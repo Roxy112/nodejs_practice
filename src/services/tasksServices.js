@@ -36,8 +36,8 @@ async function createTask(userId, projectId, task) {
 
 module.exports = {
     createTask, 
-    findTasksFromProject,
-    findTaskDetail,
-    updateTask,
-    deleteTask
+    // findTasksFromProject,
+    // findTaskDetail,
+    // updateTask,
+    // deleteTask
 };

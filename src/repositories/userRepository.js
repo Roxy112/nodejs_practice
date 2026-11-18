@@ -99,7 +99,7 @@ async function changePassword(id, password_hash, conn = null) {
         throw err;
     }
 
-    return result[0] ?? null;
+    return true;
 }
 
 module.exports = {

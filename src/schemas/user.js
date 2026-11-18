@@ -45,12 +45,15 @@ const userSchema = z
         name: nameSchema,
         account: accountSchema
     })
+    .strict()
+    .partial();
 
 const changePasswordSchema = z
     .object({
         password: passwordSchema,
-        oldPassword: passwordSchema
+        oldPassword: z.string().min(1).max(72)
     })
+    .strict();
 
 module.exports = {
     idSchema,

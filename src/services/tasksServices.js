@@ -3,8 +3,8 @@ const repository = require("../repositories/taskRepository");
 const { findOwnedById } = require("../repositories/projectsRepository");
 
 async function createTask(userId, projectId, task) {
-    const checkProject = findOwnedById(projectId, userId);
-    if (!checkProject) {
+    const checkProject = await findOwnedById(projectId, userId);
+    if (checkProject === null) {
         const error = new Error("Project not found or unauthorized");
         error.status = 404;
         throw error;

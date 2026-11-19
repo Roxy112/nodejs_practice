@@ -65,7 +65,31 @@ async function listTasks(req, res, next) {
     }
 }
 
+async function getTask(req, res, next) {
+    const userId = Number(req.user.userId);
+    if (!Number.isInteger(userId) || userId <= 0) {
+        return res.status(400).json({ error: "Invalid userId" });
+    }
+
+    const taskId = Number(req.params.taskId);
+    if (!Number.isInteger(taskId) || taskId <= 0) {
+        return res.status(400).json({ error: "Invalid taskId" });
+    }
+
+    try {
+        const result = await service.getTask(taskId, userId);
+        return res.status(200).json({
+            "success": true,
+            "data": {
+                "task": result
+            }            
+        });
+    } catch (error) {
+        next(error);
+    }
+}
 module.exports = {
     createTask,
-    listTasks
+    listTasks,
+    getTask,
 }

@@ -7,4 +7,6 @@ router.use(authMiddleware);
 
 router.get("/:taskId", controller.getTask);
 
+router.patch("/:taskId", controller.updateTask);
+
 module.exports = router;

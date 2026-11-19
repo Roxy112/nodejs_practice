@@ -57,10 +57,17 @@ async function getTask(id, userId) {
     };
 }
 
-// async function updateTask(task, userId) {
-//     const result = await repository.updateTask(task, userId);
-//     return result;
-// }
+async function updateTask(id, userId, task) {
+    const checkTask = await repository.getTask(id, userId);
+    if (checkTask === null) {
+        const error = new Error("Task not found or unauthorized");
+        error.status = 404;
+        throw error;
+    }
+
+    const result = await repository.updateTask(id, userId, task);
+    return result;
+}
 
 // async function deleteTask(id, projectId, userId) {
 //     const result = await repository.deleteTask(id, projectId, userId)
@@ -71,6 +78,6 @@ module.exports = {
     createTask, 
     listTasks,
     getTask,
-    // updateTask,
+    updateTask,
     // deleteTask
 };

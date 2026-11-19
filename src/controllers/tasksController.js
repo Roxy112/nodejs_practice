@@ -1,6 +1,6 @@
 const service = require("../services/tasksServices");
 
-const { createTaskSchema } = require("../schemas/task");
+const { createTaskSchema, updateTaskSchema } = require("../schemas/task");
 
 async function createTask(req, res, next) {
     const userId = Number(req.user.userId);
@@ -67,12 +67,12 @@ async function listTasks(req, res, next) {
 
 async function getTask(req, res, next) {
     const userId = Number(req.user.userId);
-    if (!Number.isInteger(userId) || userId <= 0) {
+    if (!Number.isSafeInteger(userId) || userId <= 0) {
         return res.status(400).json({ error: "Invalid userId" });
     }
 
     const taskId = Number(req.params.taskId);
-    if (!Number.isInteger(taskId) || taskId <= 0) {
+    if (!Number.isSafeInteger(taskId) || taskId <= 0) {
         return res.status(400).json({ error: "Invalid taskId" });
     }
 
@@ -88,8 +88,43 @@ async function getTask(req, res, next) {
         next(error);
     }
 }
+
+async function updateTask(req, res, next) {
+    const userId = Number(req.user.userId);
+    if (!Number.isSafeInteger(userId) || userId <= 0) {
+        return res.status(400).json({ error: "Invalid userId" });
+    }
+
+    const taskId = Number(req.params.taskId);
+    if (!Number.isSafeInteger(taskId) || taskId <= 0) {
+        return res.status(400).json({ error: "Invalid taskId" });
+    }
+
+    const validation = updateTaskSchema.safeParse(req.body);
+    if (!validation.success) {
+        return res.status(400).json({
+            error: validation.error.issues.map((issue) => ({
+                path: issue.path.join(".") || "(root)",
+                message: issue.message,
+            })),
+        });
+    }
+    
+    try {
+        const result = await service.updateTask(taskId, userId, validation.data);
+        return res.status(200).json({
+            "success": true,
+            "data": {
+                "task": result
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+}
 module.exports = {
     createTask,
     listTasks,
     getTask,
+    updateTask
 }

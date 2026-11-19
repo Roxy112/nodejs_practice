@@ -1,6 +1,5 @@
 const db = require("../config/db");
 
-// 创建Task
 async function createTask(projectId, userId, task, conn = null) {
     const executor = conn ?? db.pool;
     const { name, description = null, priority = "medium", deadline = null } = task;
@@ -85,38 +84,54 @@ async function getTask(id, userId, conn = null) {
     return result[0] ?? null;
 }
 
-// 修改task
-async function updateTask(task, userId, conn = null) {
+const ALLOWED_COLUMNS = new Set(["name", "description", "status", "priority", "deadline"]);
+async function updateTask(id, userId, task, conn = null) {
     const executor = conn ?? db.pool;
-    const { id, projectId, name, description = null, status, priority, deadline = null } = task;
-    if (!id || !projectId || !name || !status || !priority) {
-        const err = new Error("Missing required task fields");
+
+    if (!task || typeof task !== "object" || Array.isArray(task)) {
+        const err = new Error("Invalid task data");
         err.status = 400;
         throw err;
     }
-    const [result] = await executor.execute(
-        `UPDATE \`task\` t
-         INNER JOIN \`project\` p ON t.project_id = p.id
-         SET
-            t.name = ?,
-            t.description = ?,
-            t.status = ?,
-            t.priority = ?,
-            t.deadline = ?
-         WHERE t.id = ? AND t.project_id = ? AND p.user_id = ?;`,
-        [name, description, status, priority, deadline, id, projectId, userId]
-    );
     
+    const keys = Object.keys(task || {}).filter(
+        key => ALLOWED_COLUMNS.has(key) && 
+        task[key] !== undefined
+    );
+    if (keys.length === 0) {
+        const err = new Error("Empty request");
+        err.status = 400;
+        throw err;
+    }
+
+    const setClauses = keys.map((key) => `t.\`${key}\` = ?`).join(', ');
+
+    const values = keys.map((key) => {
+        const value = task[key];
+        if (key === "deadline" && value !== null) {
+            return new Date(value).toISOString().slice(0, 19).replace("T", " ");
+        }
+        return value;
+    });
+
+    values.push(id, userId);
+    const query = `
+        UPDATE \`task\` t
+        INNER JOIN \`project\` p ON t.project_id = p.id
+        SET ${setClauses}
+        WHERE t.id = ? AND p.user_id = ?;`;
+
+    const [result] = await executor.execute(query, values);
+
     if (result.affectedRows === 0) {
         const err = new Error("Task not found or unauthorized");
         err.status = 404;
         throw err;
     }
 
-    return true;
+    return await getTask(id, userId, conn);
 }
 
-// 删除task
 async function deleteTask(id, projectId, userId, conn = null) {
     const executor = conn ?? db.pool;
     const [result] = await executor.execute(

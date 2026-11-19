@@ -1,7 +1,7 @@
 const z = require("zod");
 
 const idSchema = z.number().int().positive();
-const nameSchema = z.string().min(1, "User name cannot be empty").max(50);
+const nameSchema = z.string().min(1, "User name cannot be empty").max(50).trim();
 const accountSchema = z
     .email({
         error: (issue) =>

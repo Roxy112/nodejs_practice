@@ -55,14 +55,14 @@ async function listOwnedByProject(projectId, userId, conn = null) {
         FROM \`task\` t
         INNER JOIN \`project\` p ON t.project_id = p.id
         WHERE t.project_id = ? AND p.user_id = ?
-        ORDER BY id ASC;`,
+        ORDER BY t.id ASC;`,
         [projectId, userId]
     )
     return result;
 }
 
 // 根据taskId和userId查找task
-async function findOwnedById(id, userId, conn = null) {
+async function getTask(id, userId, conn = null) {
     const executor = conn ?? db.pool;
     const [result] = await executor.execute(
         `SELECT 
@@ -70,6 +70,7 @@ async function findOwnedById(id, userId, conn = null) {
             t.project_id AS projectId,
             p.name AS projectName,
             t.name,
+            t.description,
             t.status,
             t.priority,
             t.deadline,
@@ -161,7 +162,7 @@ async function deleteAllByProject(projectId, userId, conn = null) {
 module.exports = {
     createTask,
     listOwnedByProject,
-    findOwnedById,
+    getTask,
     updateTask,
     deleteTask,
     lockTask,

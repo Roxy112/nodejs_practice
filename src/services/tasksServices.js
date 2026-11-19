@@ -35,10 +35,27 @@ async function listTasks(projectId, userId) {
     return result; 
 }
 
-// async function findTaskDetail(id, userId) {
-//     const result = await repository.findOwnedById(id, userId);
-//     return result;
-// }
+async function getTask(id, userId) {
+    const result = await repository.getTask(id, userId);
+    if (result === null) {
+        const error = new Error("Task not found or unauthorized");
+        error.status = 404;
+        throw error;
+    }
+    
+    return {
+        "id": result.id,
+        "projectId": result.projectId,
+        "projectName": result.projectName,
+        "name": result.name,
+        "description": result.description,
+        "status": result.status,
+        "priority": result.priority,
+        "deadline": result.deadline,
+        "createdAt": result.createdAt,
+        "updatedAt": result.updatedAt
+    };
+}
 
 // async function updateTask(task, userId) {
 //     const result = await repository.updateTask(task, userId);
@@ -53,7 +70,7 @@ async function listTasks(projectId, userId) {
 module.exports = {
     createTask, 
     listTasks,
-    // findTaskDetail,
+    getTask,
     // updateTask,
     // deleteTask
 };

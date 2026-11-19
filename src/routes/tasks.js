@@ -5,4 +5,6 @@ const controller = require("../controllers/tasksController");
 
 router.use(authMiddleware);
 
+router.get("/:taskId", controller.getTask);
+
 module.exports = router;

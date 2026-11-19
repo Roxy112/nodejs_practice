@@ -6,10 +6,10 @@ const prioritySchema = z.enum(["low", "medium", "high", "urgent"]).nullable();
 const deadlineSchema = z.iso.datetime();
 
 const createTaskSchema = z.object({
-    name: nameSchema,
-    description: descriptionSchema,
-    priority: prioritySchema,
-    deadline: deadlineSchema
+        name: nameSchema,
+        description: descriptionSchema.optional(),
+        priority: prioritySchema.optional(),
+        deadline: deadlineSchema.optional()
     })
     .strict();
 

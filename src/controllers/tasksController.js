@@ -28,6 +28,7 @@ async function createTask(req, res, next) {
             "success": true,
             "message": "Created",
             "data": {
+                projectId,
                 "id": result.id,
                 "name": result.name,
                 "description": result.description ?? null,

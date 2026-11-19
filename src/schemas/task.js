@@ -2,8 +2,8 @@ const z = require("zod");
 
 const nameSchema = z.string().trim().min(1, "Task name cannot be empty").max(20);
 const descriptionSchema = z.string().trim().max(50).nullable();
-const prioritySchema = z.enum(["low", "medium", "high", "urgent"]).nullable();
-const deadlineSchema = z.iso.datetime();
+const prioritySchema = z.enum(["low", "medium", "high", "urgent"]);
+const deadlineSchema = z.iso.datetime().nullable();
 
 const createTaskSchema = z.object({
         name: nameSchema,

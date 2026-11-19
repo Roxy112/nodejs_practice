@@ -1,6 +1,6 @@
 const z = require("zod");
 
-const nameSchema = z.string().trim().min(1, "Project name cannot be empty").max(20);
+const nameSchema = z.string().trim().min(1, "Project name cannot be empty").max(20).trim();
 const descriptionSchema = z.string().trim().min(0).max(50).nullable();
 const createProjectSchema = z
     .object({

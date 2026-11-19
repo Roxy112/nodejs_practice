@@ -42,14 +42,30 @@ async function createTask(req, res, next) {
     }    
 }
 
-// async function listTasks(req, res, next) {
-//     const userId = Number(req.user.userId);
-//     if (!Number.isInteger(userId) || userId <= 0) {
-//         return res.status(400).json({ error: "Invalid userId" });
-//     }
-// }
+async function listTasks(req, res, next) {
+    const userId = Number(req.user.userId);
+    if (!Number.isInteger(userId) || userId <= 0) {
+        return res.status(400).json({ error: "Invalid userId" });
+    }
+    const projectId = Number(req.params.projectId);
+    if (!Number.isInteger(projectId) || projectId <= 0) {
+        return res.status(400).json({ error: "Invalid projectId" });
+    }
+
+    try {
+        const result = await service.listTasks(projectId, userId);
+        return res.status(200).json({
+            "success": true,
+            "data": {
+                "tasks": result
+            }            
+        });
+    } catch (error) {
+        next(error);
+    }
+}
 
 module.exports = {
     createTask,
-    // listTasks
+    listTasks
 }

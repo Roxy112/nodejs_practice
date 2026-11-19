@@ -5,7 +5,7 @@ const descriptionSchema = z.string().trim().min(0).max(50).nullable();
 const createProjectSchema = z
     .object({
         name: nameSchema, 
-        description: descriptionSchema
+        description: descriptionSchema.optional()
     })
     .strict();
 

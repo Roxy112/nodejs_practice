@@ -3,8 +3,9 @@ const db = require("../config/db");
 // 创建Task
 async function createTask(projectId, userId, task, conn = null) {
     const executor = conn ?? db.pool;
-    const { name, description = null, priority = medium, deadline = null } = task;
+    const { name, description = null, priority = "medium", deadline = null } = task;
 
+    const status = "pending";
     const dbDeadline = deadline === null
     ? null
     : new Date(deadline).toISOString().slice(0, 19).replace("T", " ");
@@ -15,16 +16,17 @@ async function createTask(projectId, userId, task, conn = null) {
             \`name\`, 
             \`description\`, 
             \`priority\`, 
-            \`deadline\`) 
-        SELECT id, ?, ?, ?, ?
+            \`deadline\`,
+            \`status\`) 
+        SELECT id, ?, ?, ?, ?, ?
         FROM \`project\`
         WHERE id = ? AND user_id = ?;`,
-        [name, description, priority, dbDeadline, projectId, userId]
+        [name, description, priority, dbDeadline, status, projectId, userId]
     );
 
     if (result.affectedRows === 0) {
         const err = new Error("Project not found or unauthorized to add tasks");
-        err.status = 403; 
+        err.status = 404; 
         throw err;
     }
 
@@ -33,8 +35,9 @@ async function createTask(projectId, userId, task, conn = null) {
         projectId,
         name,
         description,
+        status,
         priority,
-        deadline
+        deadline: dbDeadline
     }
 }
 

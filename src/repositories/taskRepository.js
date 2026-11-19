@@ -54,7 +54,8 @@ async function listOwnedByProject(projectId, userId, conn = null) {
             t.deadline 
         FROM \`task\` t
         INNER JOIN \`project\` p ON t.project_id = p.id
-        WHERE t.project_id = ? AND p.user_id = ?;`,
+        WHERE t.project_id = ? AND p.user_id = ?
+        ORDER BY id ASC;`,
         [projectId, userId]
     )
     return result;

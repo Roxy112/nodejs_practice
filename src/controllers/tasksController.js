@@ -31,6 +31,7 @@ async function createTask(req, res, next) {
                 "id": result.id,
                 "name": result.name,
                 "description": result.description ?? null,
+                "status": result.status ?? "pending",
                 "priority": result.priority,
                 "deadline": result.deadline
             }

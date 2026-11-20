@@ -69,15 +69,23 @@ async function updateTask(id, userId, task) {
     return result;
 }
 
-// async function deleteTask(id, projectId, userId) {
-//     const result = await repository.deleteTask(id, projectId, userId)
-//     return result;
-// }
+async function deleteTask(id, userId) {
+    const task = await repository.getTask(id, userId);
+    if (task === null) {
+        const error = new Error("Task not found or unauthorized");
+        error.status = 404;
+        throw error;
+    }
+    const projectId = task.projectId;
+
+    const result = await repository.deleteTask(id, projectId, userId)
+    return result;
+}
 
 module.exports = {
     createTask, 
     listTasks,
     getTask,
     updateTask,
-    // deleteTask
+    deleteTask
 };

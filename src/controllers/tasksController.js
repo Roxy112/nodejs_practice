@@ -122,9 +122,30 @@ async function updateTask(req, res, next) {
         next(error);
     }
 }
+
+async function deleteTask(req, res, next) {
+    const userId = Number(req.user.userId);
+    if (!Number.isSafeInteger(userId) || userId <= 0) {
+        return res.status(400).json({ error: "Invalid userId" });
+    }
+
+    const taskId = Number(req.params.taskId);
+    if (!Number.isSafeInteger(taskId) || taskId <= 0) {
+        return res.status(400).json({ error: "Invalid taskId" });
+    }
+
+    try {
+        await service.deleteTask(taskId, userId);
+        return res.status(204).end();
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     createTask,
     listTasks,
     getTask,
-    updateTask
+    updateTask,
+    deleteTask
 }

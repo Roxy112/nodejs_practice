@@ -9,4 +9,6 @@ router.get("/:taskId", controller.getTask);
 
 router.patch("/:taskId", controller.updateTask);
 
+router.delete("/:taskId", controller.deleteTask);
+
 module.exports = router;

@@ -1,28 +1,28 @@
 const db = require("../config/db");
-const repository = require("../repositories/taskRepository");
-const { findOwnedById } = require("../repositories/projectsRepository");
+const tasksRepository = require("../repositories/taskRepository");
+const projectsRepository = require("../repositories/projectsRepository");
 
 async function createTask(userId, projectId, task) {
-    const checkProject = await findOwnedById(projectId, userId);
+    const checkProject = await projectsRepository.findOwnedById(projectId, userId);
     if (checkProject === null) {
         const error = new Error("Project not found or unauthorized");
         error.status = 404;
         throw error;
     }
 
-    const result = await repository.createTask(projectId, userId, task);
+    const result = await tasksRepository.createTask(projectId, userId, task);
     return result;
 }
 
 async function listTasks(projectId, userId) {
-    const checkProject = await findOwnedById(projectId, userId);
+    const checkProject = await projectsRepository.findOwnedById(projectId, userId);
     if (checkProject === null) {
         const error = new Error("Project not found or unauthorized");
         error.status = 404;
         throw error;
     }
 
-    const tasks = await repository.listOwnedByProject(projectId, userId);
+    const tasks = await tasksRepository.listOwnedByProject(projectId, userId);
     const result = tasks.map(task => ({
         "id": task.id,
         projectId,
@@ -36,7 +36,7 @@ async function listTasks(projectId, userId) {
 }
 
 async function getTask(id, userId) {
-    const result = await repository.getTask(id, userId);
+    const result = await tasksRepository.getTask(id, userId);
     if (result === null) {
         const error = new Error("Task not found or unauthorized");
         error.status = 404;
@@ -58,19 +58,19 @@ async function getTask(id, userId) {
 }
 
 async function updateTask(id, userId, task) {
-    const checkTask = await repository.getTask(id, userId);
+    const checkTask = await tasksRepository.getTask(id, userId);
     if (checkTask === null) {
         const error = new Error("Task not found or unauthorized");
         error.status = 404;
         throw error;
     }
 
-    const result = await repository.updateTask(id, userId, task);
+    const result = await tasksRepository.updateTask(id, userId, task);
     return result;
 }
 
 async function deleteTask(id, userId) {
-    const task = await repository.getTask(id, userId);
+    const task = await tasksRepository.getTask(id, userId);
     if (task === null) {
         const error = new Error("Task not found or unauthorized");
         error.status = 404;
@@ -78,7 +78,7 @@ async function deleteTask(id, userId) {
     }
     const projectId = task.projectId;
 
-    const result = await repository.deleteTask(id, projectId, userId)
+    const result = await tasksRepository.deleteTask(id, projectId, userId)
     return result;
 }
 

@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const taskRepository = require("../../src/repositories/taskRepository");
 const projectsRepository = require("../../src/repositories/projectsRepository");
 const service = require("../../src/services/tasksServices");
+const { get } = require("node:http");
 
 describe("TasksService", () => {
     describe("createTask", () => {
@@ -84,7 +85,7 @@ describe("TasksService", () => {
 
     describe("deleteTask", () => {
         it("should pass task.projectId to repository.deleteTask", async (t) => {
-            t.mock.method(taskRepository, "getTask", async () => ({
+            const getTaskMock = t.mock.method(taskRepository, "getTask", async () => ({
                 id: 5,
                 projectId: 22
             }));
@@ -98,6 +99,28 @@ describe("TasksService", () => {
 
             assert.equal(result, true);
             assert.deepEqual(deleteMock.mock.calls[0].arguments, [5, 22, 1]);
+            assert.equal(getTaskMock.mock.callCount(), 1);
+            assert.equal(deleteMock.mock.callCount(), 1);
+        });
+
+        it("should throw 404 and skip repository.deleteTask when task is not found or unauthorized", async (t) => {
+            const getTaskMock = t.mock.method(taskRepository, "getTask", async () => null);
+            const deleteMock = t.mock.method(
+                taskRepository,
+                "deleteTask",
+                async () => { throw new Error("should not be called"); }
+            );
+
+            await assert.rejects(
+                () => service.deleteTask(999, 1),
+                {
+                    message: "Task not found or unauthorized",
+                    status: 404
+                }
+            );
+            assert.equal(getTaskMock.mock.callCount(), 1);
+            assert.deepEqual(getTaskMock.mock.calls[0].arguments, [999, 1]);
+            assert.equal(deleteMock.mock.callCount(), 0);
         });
     });
 });

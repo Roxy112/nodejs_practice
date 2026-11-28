@@ -4,7 +4,6 @@ const assert = require("node:assert/strict");
 const taskRepository = require("../../src/repositories/taskRepository");
 const projectsRepository = require("../../src/repositories/projectsRepository");
 const service = require("../../src/services/tasksServices");
-const { get } = require("node:http");
 
 describe("TasksService", () => {
     describe("createTask", () => {
@@ -99,6 +98,7 @@ describe("TasksService", () => {
 
             assert.equal(result, true);
             assert.deepEqual(deleteMock.mock.calls[0].arguments, [5, 22, 1]);
+            assert.deepEqual(getTaskMock.mock.calls[0].arguments, [5, 1]);
             assert.equal(getTaskMock.mock.callCount(), 1);
             assert.equal(deleteMock.mock.callCount(), 1);
         });

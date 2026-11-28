@@ -8,6 +8,8 @@
   "main": "src/index.js",
   "scripts": {
     "test": "node --test",
+    "test:unit": "node --test test/service/*.test.js",
+    "test:integration": "node --test --test-concurrency=1 test/integration/*.test.js",
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
     "db:init": "node scripts/init.js",
@@ -22,5 +24,8 @@
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.24.6",
     "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "supertest": "^7.3.2"
   }
 }
